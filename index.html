@@ -13,8 +13,8 @@
 
   <input type="text" id="search" placeholder="Oyun ara...">
 
-  <label for="deviceSelect" style="font-weight: bold;">Cihaz Seç:</label>
-  <select id="deviceSelect" style="padding: 10px; font-size: 16px;">
+  <label for="deviceSelect"><b>Cihaz Seç:</b></label>
+  <select id="deviceSelect">
     <option>Yükleniyor...</option>
   </select>
 
@@ -27,6 +27,7 @@
   <button id="buy">WhatsApp'tan Sipariş Ver</button>
 
   <script>
+    // Firebase ayarları
     const firebaseConfig = {
       apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41TSGETe4",
       authDomain: "akmegamestore-66522.firebaseapp.com",
@@ -37,8 +38,10 @@
       appId: "1:893039272243:web:c1b862e113b1e1a9528023"
     };
 
+    // Firebase'i başlat
     firebase.initializeApp(firebaseConfig);
 
+    // Veri yapılarını tanımla
     let games = [], cart = [];
 
     const deviceSelect = document.getElementById('deviceSelect');
@@ -47,6 +50,7 @@
     const totalPriceEl = document.getElementById('totalPrice');
     const searchInput = document.getElementById('search');
 
+    // Sepeti güncelle
     function updateCart() {
       cartList.innerHTML = '';
       let total = 0;
@@ -66,13 +70,19 @@
       totalPriceEl.textContent = total;
     }
 
+    // YouTube linkini embed'e dönüştür
+    function embedYouTube(url) {
+      const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
+      return match ? https://www.youtube.com/embed/${match[1]} : '';
+    }
+
+    // Oyunları göster
     function renderGames() {
       gameList.innerHTML = '';
       const search = searchInput.value.toLowerCase();
-      const selectedDevice = deviceSelect.value.toLowerCase();
+      const selectedDevice = deviceSelect.value;
 
-      games
-        .filter(g => g.device.toLowerCase() === selectedDevice && g.name.toLowerCase().includes(search))
+      games.filter(g => g.device === selectedDevice && g.name.toLowerCase().includes(search))
         .forEach(g => {
           const div = document.createElement('div');
           div.className = 'game';
@@ -97,11 +107,7 @@
         });
     }
 
-    function embedYouTube(url) {
-      const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n]+)/);
-      return match ? https://www.youtube.com/embed/${match[1]} : '';
-    }
-
+    // Cihazları yükle
     firebase.database().ref('devices').on('value', snap => {
       deviceSelect.innerHTML = '';
       snap.forEach(child => {
@@ -113,6 +119,7 @@
       renderGames();
     });
 
+    // Oyunları yükle
     firebase.database().ref('games').on('value', snap => {
       games = [];
       snap.forEach(child => {
