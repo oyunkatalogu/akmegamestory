@@ -1,46 +1,64 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
 </head>
 <body>
   <h1>Admin Panel</h1>
+
+  <h2>Cihaz Ekle</h2>
   <input type="text" id="deviceName" placeholder="Yeni cihaz ismi">
   <button onclick="addDevice()">Cihaz Ekle</button>
 
   <h2>Oyun Ekle</h2>
+  <select id="gameDevice"></select>
   <input type="text" id="gameName" placeholder="Oyun adı">
   <input type="text" id="gameCode" placeholder="Oyun kodu">
   <input type="text" id="gamePrice" placeholder="Fiyat">
-  <select id="gameDevice"></select>
   <input type="file" id="gameImage">
   <input type="file" id="gameVideo">
   <button onclick="uploadGame()">Yükle</button>
 
   <script src="firebase.js"></script>
   <script>
+    // Firebase cihaz listesi çekme
     firebase.database().ref('devices').on('value', snap => {
       const sel = document.getElementById('gameDevice');
       sel.innerHTML = '';
       snap.forEach(child => {
         const opt = document.createElement('option');
         opt.value = child.key;
-        opt.textContent = child.key;
+        opt.textContent = child.val().name || child.key;
         sel.appendChild(opt);
       });
     });
 
+    // Cihaz ekle fonksiyonu
     function addDevice() {
-      const name = document.getElementById('deviceName').value;
-      if (name) firebase.database().ref('devices/' + name).set(true);
+      const name = document.getElementById('deviceName').value.trim();
+      if (!name) {
+        alert("Cihaz adı boş olamaz.");
+        return;
+      }
+
+      firebase.database().ref('devices/' + name).set({ name: name })
+        .then(() => {
+          alert('Cihaz başarıyla eklendi!');
+          document.getElementById('deviceName').value = '';
+        })
+        .catch(err => {
+          console.error(err);
+          alert('Bir hata oluştu: ' + err.message);
+        });
     }
 
+    // Oyun ekle fonksiyonu
     function uploadGame() {
       const name = document.getElementById('gameName').value;
       const code = document.getElementById('gameCode').value;
@@ -48,6 +66,11 @@
       const device = document.getElementById('gameDevice').value;
       const imageFile = document.getElementById('gameImage').files[0];
       const videoFile = document.getElementById('gameVideo').files[0];
+
+      if (!name || !code || !price || !device || !imageFile || !videoFile) {
+        alert("Tüm alanları doldurmalısınız!");
+        return;
+      }
 
       const storageRef = firebase.storage().ref();
       const imgRef = storageRef.child('images/' + imageFile.name);
@@ -57,8 +80,25 @@
         imgRef.put(imageFile).then(() => imgRef.getDownloadURL()),
         vidRef.put(videoFile).then(() => vidRef.getDownloadURL())
       ]).then(([imgURL, vidURL]) => {
-        const gameData = { name, code, price, device, image: imgURL, video: vidURL };
-        firebase.database().ref('games/' + code).set(gameData);
+        const gameData = {
+          name,
+          code,
+          price,
+          device,
+          image: imgURL,
+          video: vidURL
+        };
+        firebase.database().ref('games/' + code).set(gameData).then(() => {
+          alert("Oyun başarıyla yüklendi!");
+          document.getElementById('gameName').value = '';
+          document.getElementById('gameCode').value = '';
+          document.getElementById('gamePrice').value = '';
+          document.getElementById('gameImage').value = '';
+          document.getElementById('gameVideo').value = '';
+        });
+      }).catch(err => {
+        console.error(err);
+        alert("Yükleme hatası: " + err.message);
       });
     }
   </script>
