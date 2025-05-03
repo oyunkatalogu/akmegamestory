@@ -10,6 +10,5 @@
     appId: "1:893039272243:web:c1b862e113b1e1a9528023"
   };
 
-  // Firebase'i başlat
   firebase.initializeApp(firebaseConfig);
 </script>
