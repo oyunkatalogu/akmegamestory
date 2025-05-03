@@ -25,9 +25,21 @@
   <input type="file" id="gameVideo">
   <button onclick="uploadGame()">Yükle</button>
 
-  <script src="firebase.js"></script>
+  <!-- Firebase kodları -->
   <script>
-    // Firebase cihaz listesi çekme
+    const firebaseConfig = {
+      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41TSGETe4",
+      authDomain: "akmegamestore-66522.firebaseapp.com",
+      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "akmegamestore-66522",
+      storageBucket: "akmegamestore-66522.appspot.com",
+      messagingSenderId: "893039272243",
+      appId: "1:893039272243:web:c1b862e113b1e1a9528023"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
+    // Cihaz listesi yükle
     firebase.database().ref('devices').on('value', snap => {
       const sel = document.getElementById('gameDevice');
       sel.innerHTML = '';
@@ -39,26 +51,15 @@
       });
     });
 
-    // Cihaz ekle fonksiyonu
     function addDevice() {
       const name = document.getElementById('deviceName').value.trim();
-      if (!name) {
-        alert("Cihaz adı boş olamaz.");
-        return;
-      }
-
-      firebase.database().ref('devices/' + name).set({ name: name })
-        .then(() => {
-          alert('Cihaz başarıyla eklendi!');
-          document.getElementById('deviceName').value = '';
-        })
-        .catch(err => {
-          console.error(err);
-          alert('Bir hata oluştu: ' + err.message);
-        });
+      if (!name) return alert("Cihaz adı girin!");
+      firebase.database().ref('devices/' + name).set({ name }).then(() => {
+        alert("Cihaz eklendi!");
+        document.getElementById('deviceName').value = '';
+      });
     }
 
-    // Oyun ekle fonksiyonu
     function uploadGame() {
       const name = document.getElementById('gameName').value;
       const code = document.getElementById('gameCode').value;
@@ -68,7 +69,7 @@
       const videoFile = document.getElementById('gameVideo').files[0];
 
       if (!name || !code || !price || !device || !imageFile || !videoFile) {
-        alert("Tüm alanları doldurmalısınız!");
+        alert("Lütfen tüm alanları doldurun.");
         return;
       }
 
@@ -80,21 +81,9 @@
         imgRef.put(imageFile).then(() => imgRef.getDownloadURL()),
         vidRef.put(videoFile).then(() => vidRef.getDownloadURL())
       ]).then(([imgURL, vidURL]) => {
-        const gameData = {
-          name,
-          code,
-          price,
-          device,
-          image: imgURL,
-          video: vidURL
-        };
+        const gameData = { name, code, price, device, image: imgURL, video: vidURL };
         firebase.database().ref('games/' + code).set(gameData).then(() => {
-          alert("Oyun başarıyla yüklendi!");
-          document.getElementById('gameName').value = '';
-          document.getElementById('gameCode').value = '';
-          document.getElementById('gamePrice').value = '';
-          document.getElementById('gameImage').value = '';
-          document.getElementById('gameVideo').value = '';
+          alert("Oyun başarıyla eklendi!");
         });
       }).catch(err => {
         console.error(err);
