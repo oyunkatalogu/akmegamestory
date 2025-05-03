@@ -7,17 +7,34 @@
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
 </head>
 <body>
   <h1>akmegamestore</h1>
+
   <input type="text" id="search" placeholder="Oyun ara...">
   <select id="deviceSelect"></select>
-  <div id="gameList"></div>  <h2>Sepet</h2>
+
+  <div id="gameList"></div>
+
+  <h2>Sepet</h2>
   <ul id="cart"></ul>
   <p>Toplam Fiyat: <span id="totalPrice">0</span> TL</p>
   <input type="text" id="address" placeholder="Kargo adresinizi girin">
-  <button id="buy">WhatsApp'tan Sipariş Ver</button>  <script src="firebase.js"></script>  <script>
+  <button id="buy">WhatsApp'tan Sipariş Ver</button>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41TSGETe4",
+      authDomain: "akmegamestore-66522.firebaseapp.com",
+      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "akmegamestore-66522",
+      storageBucket: "akmegamestore-66522.appspot.com",
+      messagingSenderId: "893039272243",
+      appId: "1:893039272243:web:c1b862e113b1e1a9528023"
+    };
+
+    firebase.initializeApp(firebaseConfig);
+
     let games = [], cart = [];
 
     const deviceSelect = document.getElementById('deviceSelect');
@@ -49,27 +66,36 @@
       gameList.innerHTML = '';
       const search = searchInput.value.toLowerCase();
       const selectedDevice = deviceSelect.value;
-      games.filter(g => g.device === selectedDevice && g.name.toLowerCase().includes(search))
-           .forEach(g => {
-        const div = document.createElement('div');
-        div.className = 'game';
-        div.innerHTML = `
-          <h3>${g.name}</h3>
-          <img src="${g.image}" alt="${g.name}" />
-          <video src="${g.video}" controls></video>
-          <p>${g.price} TL</p>
-        `;
-        const btn = document.createElement('button');
-        btn.textContent = 'Sepete Ekle';
-        btn.onclick = () => {
-          if (!cart.some(item => item.code === g.code)) {
-            cart.push(g);
-            updateCart();
-          }
-        };
-        div.appendChild(btn);
-        gameList.appendChild(div);
-      });
+
+      games
+        .filter(g => g.device === selectedDevice && g.name.toLowerCase().includes(search))
+        .forEach(g => {
+          const div = document.createElement('div');
+          div.className = 'game';
+          div.innerHTML = `
+            <h3>${g.name}</h3>
+            <img src="${g.image}" alt="${g.name}" style="max-width: 200px;" />
+            <div style="margin:10px 0">
+              <iframe width="300" height="170" src="${embedYouTube(g.video)}" frameborder="0" allowfullscreen></iframe>
+            </div>
+            <p>${g.price} TL</p>
+          `;
+          const btn = document.createElement('button');
+          btn.textContent = 'Sepete Ekle';
+          btn.onclick = () => {
+            if (!cart.some(item => item.code === g.code)) {
+              cart.push(g);
+              updateCart();
+            }
+          };
+          div.appendChild(btn);
+          gameList.appendChild(div);
+        });
+    }
+
+    function embedYouTube(url) {
+      const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n]+)/);
+      return match ? https://www.youtube.com/embed/${match[1]} : url;
     }
 
     firebase.database().ref('devices').on('value', snap => {
@@ -96,8 +122,9 @@
 
     document.getElementById('buy').onclick = () => {
       const address = document.getElementById('address').value;
-      const message = Sipariş Listesi:%0A${cart.map(g => g.name + ' - ' + g.price + 'TL').join('%0A')}%0AToplam: ${totalPriceEl.textContent} TL%0AKargo Adresi: ${address};
+      const message = Sipariş Listesi:%0A${cart.map(g => g.name + ' - ' + g.price + ' TL').join('%0A')}%0AToplam: ${totalPriceEl.textContent} TL%0AKargo Adresi: ${address};
       window.open(https://wa.me/905548801010?text=${message}, '_blank');
     };
-  </script></body>
+  </script>
+</body>
 </html>
