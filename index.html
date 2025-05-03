@@ -13,8 +13,8 @@
 
   <input type="text" id="search" placeholder="Oyun ara...">
 
-  <label for="deviceSelect" class="device-label">Cihaz Seç:</label>
-  <select id="deviceSelect">
+  <label for="deviceSelect" style="font-weight: bold;">Cihaz Seç:</label>
+  <select id="deviceSelect" style="padding: 10px; font-size: 16px;">
     <option>Yükleniyor...</option>
   </select>
 
@@ -103,15 +103,15 @@
     }
 
     firebase.database().ref('devices').on('value', snap => {
-  deviceSelect.innerHTML = '';
-  snap.forEach(child => {
-    const opt = document.createElement('option');
-    opt.value = child.key;
-    opt.textContent = child.key;
-    deviceSelect.appendChild(opt);
-  });
-  renderGames();
-});
+      deviceSelect.innerHTML = '';
+      snap.forEach(child => {
+        const opt = document.createElement('option');
+        opt.value = child.key;
+        opt.textContent = child.key;
+        deviceSelect.appendChild(opt);
+      });
+      renderGames();
+    });
 
     firebase.database().ref('games').on('value', snap => {
       games = [];
