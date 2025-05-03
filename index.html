@@ -65,10 +65,10 @@
     function renderGames() {
       gameList.innerHTML = '';
       const search = searchInput.value.toLowerCase();
-      const selectedDevice = deviceSelect.value;
+      const selectedDevice = deviceSelect.value.toLowerCase();
 
       games
-        .filter(g => g.device === selectedDevice && g.name.toLowerCase().includes(search))
+        .filter(g => g.device.toLowerCase() === selectedDevice && g.name.toLowerCase().includes(search))
         .forEach(g => {
           const div = document.createElement('div');
           div.className = 'game';
@@ -95,7 +95,7 @@
 
     function embedYouTube(url) {
       const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n]+)/);
-      return match ? https://www.youtube.com/embed/${match[1]} : url;
+      return match ? https://www.youtube.com/embed/${match[1]} : '';
     }
 
     firebase.database().ref('devices').on('value', snap => {
