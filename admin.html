@@ -7,7 +7,6 @@
   <link rel="stylesheet" href="style.css" />
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-storage-compat.js"></script>
 </head>
 <body>
   <h1>Admin Panel</h1>
@@ -21,11 +20,11 @@
   <input type="text" id="gameName" placeholder="Oyun adı">
   <input type="text" id="gameCode" placeholder="Oyun kodu">
   <input type="text" id="gamePrice" placeholder="Fiyat">
-  <input type="file" id="gameImage">
-  <input type="text" id="gameVideoLink" placeholder="YouTube video bağlantısı">
+  <input type="text" id="gameImageLink" placeholder="Görsel bağlantısı (https://...)">
+  <input type="text" id="gameVideoLink" placeholder="Video bağlantısı (YouTube)">
   <button onclick="uploadGame()">Yükle</button>
 
-  <!-- Firebase Config -->
+  <!-- Firebase Yapılandırma -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41TSGETe4",
@@ -39,7 +38,7 @@
 
     firebase.initializeApp(firebaseConfig);
 
-    // Cihazları Yükle
+    // Cihazları yükle
     firebase.database().ref('devices').on('value', snap => {
       const sel = document.getElementById('gameDevice');
       sel.innerHTML = '';
@@ -65,30 +64,22 @@
       const code = document.getElementById('gameCode').value;
       const price = document.getElementById('gamePrice').value;
       const device = document.getElementById('gameDevice').value;
-      const imageFile = document.getElementById('gameImage').files[0];
-      const videoURL = document.getElementById('gameVideoLink').value;
+      const image = document.getElementById('gameImageLink').value;
+      const video = document.getElementById('gameVideoLink').value;
 
-      if (!name || !code || !price || !device || !imageFile || !videoURL) {
-        alert("Lütfen tüm alanları doldurun.");
+      if (!name || !code || !price || !device || !image || !video) {
+        alert("Tüm alanları doldurun.");
         return;
       }
 
-      const storageRef = firebase.storage().ref();
-      const imgRef = storageRef.child('images/' + imageFile.name);
-
-      imgRef.put(imageFile).then(() => imgRef.getDownloadURL()).then((imgURL) => {
-        const gameData = { name, code, price, device, image: imgURL, video: videoURL };
-        firebase.database().ref('games/' + code).set(gameData).then(() => {
-          alert("Oyun başarıyla eklendi!");
-          document.getElementById('gameName').value = '';
-          document.getElementById('gameCode').value = '';
-          document.getElementById('gamePrice').value = '';
-          document.getElementById('gameImage').value = '';
-          document.getElementById('gameVideoLink').value = '';
-        });
-      }).catch(err => {
-        console.error(err);
-        alert("Yükleme hatası: " + err.message);
+      const gameData = { name, code, price, device, image, video };
+      firebase.database().ref('games/' + code).set(gameData).then(() => {
+        alert("Oyun başarıyla eklendi!");
+        document.getElementById('gameName').value = '';
+        document.getElementById('gameCode').value = '';
+        document.getElementById('gamePrice').value = '';
+        document.getElementById('gameImageLink').value = '';
+        document.getElementById('gameVideoLink').value = '';
       });
     }
   </script>
