@@ -1,87 +1,79 @@
-<!DOCTYPE html>
-<html lang="tr">
+<!DOCTYPE html><html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel</title>
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Paneli - AkMegaStore</title>
+  <style>
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+    }
+    .sidebar {
+      width: 240px;
+      background-color: #1e1e2f;
+      color: white;
+      height: 100vh;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 15px 20px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+    }
+    .sidebar button:hover {
+      background-color: #2e2e4f;
+    }
+    .submenu {
+      display: none;
+      padding-left: 20px;
+    }
+    .submenu button {
+      padding: 10px 20px;
+      background-color: #292940;
+    }
+    .content {
+      flex-grow: 1;
+      padding: 20px;
+    }
+    h2 {
+      margin-top: 0;
+    }
+  </style>
 </head>
 <body>
-  <h1>Admin Panel</h1>
+  <div class="sidebar">
+    <button onclick="toggleSubmenu('usersSubmenu')">Kullanıcılar</button>
+    <div id="usersSubmenu" class="submenu">
+      <button>Banlanan Kullanıcılar</button>
+      <button>Özel Kullanıcılar</button>
+      <button>Standart Kullanıcılar</button>
+    </div><button onclick="toggleSubmenu('catalogSubmenu')">Katalog</button>
+<div id="catalogSubmenu" class="submenu">
+  <button>PlayStation</button>
+  <button>Nintendo</button>
+  <button>Xbox</button>
+  <button>Bilgisayar</button>
+</div>
 
-  <h2>Cihaz Ekle</h2>
-  <input type="text" id="deviceName" placeholder="Yeni cihaz ismi">
-  <button onclick="addDevice()">Cihaz Ekle</button>
+<button>İlan Ekle</button>
+<button>Reklam Ekle</button>
+<button>Sayfa Arka Planını Değiştir</button>
 
-  <h2>Oyun Ekle</h2>
-  <select id="gameDevice"></select>
-  <input type="text" id="gameName" placeholder="Oyun adı">
-  <input type="text" id="gameCode" placeholder="Oyun kodu">
-  <input type="text" id="gamePrice" placeholder="Fiyat">
-  <input type="text" id="gameImageLink" placeholder="Görsel bağlantısı (https://...)">
-  <input type="text" id="gameVideoLink" placeholder="Video bağlantısı (YouTube)">
-  <button onclick="uploadGame()">Yükle</button>
-
-  <!-- Firebase Yapılandırma -->
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41TSGETe4",
-      authDomain: "akmegamestore-66522.firebaseapp.com",
-      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "akmegamestore-66522",
-      storageBucket: "akmegamestore-66522.appspot.com",
-      messagingSenderId: "893039272243",
-      appId: "1:893039272243:web:c1b862e113b1e1a9528023"
-    };
-
-    firebase.initializeApp(firebaseConfig);
-
-    // Cihazları yükle
-    firebase.database().ref('devices').on('value', snap => {
-      const sel = document.getElementById('gameDevice');
-      sel.innerHTML = '';
-      snap.forEach(child => {
-        const opt = document.createElement('option');
-        opt.value = child.key;
-        opt.textContent = child.val().name || child.key;
-        sel.appendChild(opt);
-      });
-    });
-
-    function addDevice() {
-      const name = document.getElementById('deviceName').value.trim();
-      if (!name) return alert("Cihaz adı girin!");
-      firebase.database().ref('devices/' + name).set({ name }).then(() => {
-        alert("Cihaz eklendi!");
-        document.getElementById('deviceName').value = '';
-      });
+  </div>
+  <div class="content">
+    <h2>Admin Paneli</h2>
+    <p>Soldaki menüden işlem seçin.</p>
+  </div>  <script>
+    function toggleSubmenu(id) {
+      const submenu = document.getElementById(id);
+      submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
     }
-
-    function uploadGame() {
-      const name = document.getElementById('gameName').value;
-      const code = document.getElementById('gameCode').value;
-      const price = document.getElementById('gamePrice').value;
-      const device = document.getElementById('gameDevice').value;
-      const image = document.getElementById('gameImageLink').value;
-      const video = document.getElementById('gameVideoLink').value;
-
-      if (!name || !code || !price || !device || !image || !video) {
-        alert("Tüm alanları doldurun.");
-        return;
-      }
-
-      const gameData = { name, code, price, device, image, video };
-      firebase.database().ref('games/' + code).set(gameData).then(() => {
-        alert("Oyun başarıyla eklendi!");
-        document.getElementById('gameName').value = '';
-        document.getElementById('gameCode').value = '';
-        document.getElementById('gamePrice').value = '';
-        document.getElementById('gameImageLink').value = '';
-        document.getElementById('gameVideoLink').value = '';
-      });
-    }
-  </script>
-</body>
+  </script></body>
 </html>
