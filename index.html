@@ -2,18 +2,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AkMegaStore Giriş</title>
+  <title>AkmeGameStore Giriş</title>
   <link rel="stylesheet" href="style.css" />
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
-  <div class="container">
+  <div class="container" id="loginBox">
     <h2>Giriş Yap</h2>
     <input type="text" id="username" placeholder="Kullanıcı Adı" />
     <input type="password" id="password" placeholder="Parola" />
     <button onclick="loginUser()">Giriş Yap</button>
+    <button onclick="showRegister()">Kayıt Ekranı</button>
+  </div>  <div class="container hidden" id="registerBox">
+    <h2>Kayıt Ol</h2>
+    <input type="text" id="regUsername" placeholder="Kullanıcı Adı" />
+    <input type="email" id="regEmail" placeholder="E-posta" />
+    <input type="tel" id="regPhone" placeholder="Telefon Numarası" />
+    <input type="password" id="regPassword" placeholder="Parola" />
+    <input type="password" id="regPassword2" placeholder="Parola (Tekrar)" />
+    <button onclick="registerUser()">Kayıt Ol</button>
   </div>  <div id="homepage" class="hidden">
     <h2>Cihaz Seç</h2>
     <select id="mainDevice">
@@ -24,15 +33,42 @@
     </select>
   </div>  <script>
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "akmegamestore-66522.firebaseapp.com",
-      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "akmegamestore-66522",
-      storageBucket: "akmegamestore-66522.appspot.com",
-      messagingSenderId: "893039272243",
-      appId: "1:893039272243:web:c1b862e113b1e1a9528023"
-    };
+  apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
+  authDomain: "akmegamestore-66522.firebaseapp.com",
+  databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "akmegamestore-66522",
+  storageBucket: "akmegamestore-66522.firebasestorage.app",
+  messagingSenderId: "89303927223",
+  appId: "1:89303927223:web:c1b6bc1231e191a5920032"
+};
     firebase.initializeApp(firebaseConfig);
+
+    function showRegister() {
+      document.getElementById("loginBox").classList.add("hidden");
+      document.getElementById("registerBox").classList.remove("hidden");
+    }
+
+    async function registerUser() {
+      const username = document.getElementById("regUsername").value;
+      const email = document.getElementById("regEmail").value;
+      const phone = document.getElementById("regPhone").value;
+      const pass1 = document.getElementById("regPassword").value;
+      const pass2 = document.getElementById("regPassword2").value;
+
+      if (pass1 !== pass2) return alert("Parolalar eşleşmiyor.");
+
+      try {
+        const userCred = await firebase.auth().createUserWithEmailAndPassword(email, pass1);
+        await firebase.database().ref("users/" + username).set({
+          email, phone, username, uid: userCred.user.uid
+        });
+        await userCred.user.sendEmailVerification();
+        alert("Kayıt başarılı! Lütfen e-postanızı doğrulayın.");
+        location.reload();
+      } catch (err) {
+        alert("Hata: " + err.message);
+      }
+    }
 
     async function loginUser() {
       const username = document.getElementById('username').value;
@@ -41,12 +77,16 @@
       const snapshot = await firebase.database().ref("users").orderByChild("username").equalTo(username).once("value");
       if (snapshot.exists()) {
         let user = Object.values(snapshot.val())[0];
-        if (user.password === password) {
-          document.querySelector(".container").classList.add("hidden");
+        try {
+          const loginCred = await firebase.auth().signInWithEmailAndPassword(user.email, password);
+          if (!loginCred.user.emailVerified) {
+            return alert("Lütfen e-posta adresinizi doğrulayın.");
+          }
+          document.getElementById("loginBox").classList.add("hidden");
           document.getElementById("homepage").classList.remove("hidden");
           loadDevices();
-        } else {
-          alert("Parola yanlış");
+        } catch (err) {
+          alert("Parola hatalı: " + err.message);
         }
       } else {
         alert("Kullanıcı bulunamadı");
