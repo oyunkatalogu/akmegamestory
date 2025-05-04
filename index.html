@@ -25,16 +25,26 @@
   <input type="text" id="address" placeholder="Kargo adresinizi girin">
   <button id="buy">WhatsApp'tan Sipariş Ver</button>
 
-  <script>
-    const firebaseConfig = {
-  apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
-  authDomain: "akmegamestore-66522.firebaseapp.com",
-  databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "akmegamestore-66522",
-  storageBucket: "akmegamestore-66522.firebasestorage.app",
-  messagingSenderId: "89303927223",
-  appId: "1:89303927223:web:c1b6bc1231e191a5920032"
-    };
+  <script type="module">
+  // Import the functions you need from the SDKs you need
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+  // TODO: Add SDKs for Firebase products that you want to use
+  // https://firebase.google.com/docs/web/setup#available-libraries
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
+    authDomain: "akmegamestore-66522.firebaseapp.com",
+    databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "akmegamestore-66522",
+    storageBucket: "akmegamestore-66522.firebasestorage.app",
+    messagingSenderId: "89303927223",
+    appId: "1:89303927223:web:c1b6bc1231e191a5920032"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+
 
     firebase.initializeApp(firebaseConfig);
 
