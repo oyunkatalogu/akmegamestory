@@ -56,7 +56,7 @@
       let total = 0;
       cart.forEach(g => {
         const li = document.createElement('li');
-        li.textContent = ${g.name} - ${g.price} TL;
+        li.textContent = '${g.name} - ${g.price} TL';
         const btn = document.createElement('button');
         btn.textContent = 'Çıkar';
         btn.onclick = () => {
