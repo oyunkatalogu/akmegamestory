@@ -21,8 +21,6 @@
   </style>
 </head>
 <body>
-
-  <!-- Kayıt ve Giriş -->
   <div id="authSection">
     <h2>Kayıt Ol</h2>
     <input type="text" id="regUsername" placeholder="Kullanıcı adı">
@@ -35,7 +33,6 @@
     <button onclick="login()">Giriş</button>
   </div>
 
-  <!-- Katalog -->
   <div id="catalogSection" style="display:none;">
     <h2>Oyun Kataloğu</h2>
     <input type="text" id="searchBox" oninput="filterGames()" placeholder="Oyun ara...">
@@ -44,14 +41,12 @@
     <h2>Favorilerim</h2>
     <div class="catalog" id="favCatalog"></div>
 
-    <!-- Sepet -->
     <h2>Sepetim</h2>
     <div id="cartList"></div>
     <p id="totalPrice">Toplam: 0 TL</p>
     <button onclick="sendCartViaWhatsApp()">WhatsApp ile Gönder</button>
   </div>
 
-  <!-- Firebase ve Script -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
@@ -63,6 +58,20 @@
       appId: "1:89303927223:web:c1b6bc1231e191a5920032"
     };
     firebase.initializeApp(firebaseConfig);
+
+    function toEmbedURL(url) {
+      if (!url) return '';
+      if (url.includes("youtube.com/embed")) return url;
+      if (url.includes("youtu.be/")) {
+        const id = url.split("youtu.be/")[1].split("?")[0];
+        return `https://www.youtube.com/embed/${id}`;
+      }
+      if (url.includes("youtube.com/watch?v=")) {
+        const id = url.split("v=")[1].split("&")[0];
+        return `https://www.youtube.com/embed/${id}`;
+      }
+      return '';
+    }
 
     function register() {
       const user = document.getElementById("regUsername").value;
@@ -139,6 +148,7 @@
         favContainer.innerHTML = '';
         snapshot.forEach(child => {
           const g = child.val();
+          const embedLink = toEmbedURL(g.video);
           const div = document.createElement("div");
           div.className = "game-card";
           div.innerHTML = `
@@ -149,10 +159,10 @@
             <button onclick="addToCart('${g.code}')">Sepete Ekle</button>
             <button onclick="removeFromCart('${g.code}')">Sepetten Çıkar</button>
             <button onclick="toggleFavorite('${g.code}')">Favori</button>
-            ${g.video && g.video.includes("youtube.com/embed") ? `
+            ${embedLink ? `
               <button onclick="toggleVideo('${g.code}')">Videoyu Oynat / Kapat</button>
               <div id="video-${g.code}" style="display:none; margin-top:10px;">
-                <iframe width="100%" height="150" src="${g.video}" frameborder="0" allowfullscreen></iframe>
+                <iframe width="100%" height="150" src="${embedLink}" frameborder="0" allowfullscreen></iframe>
               </div>
             ` : ''}
           `;
