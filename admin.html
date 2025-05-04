@@ -3,18 +3,48 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Paneli - AkmeGameStore</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; display: flex; }
-    .sidebar { width: 240px; background-color: #1e1e2f; color: white; height: 100vh; padding: 20px 0; display: flex; flex-direction: column; }
-    .sidebar button { background: none; border: none; color: white; padding: 15px 20px; text-align: left; cursor: pointer; width: 100%; }
-    .sidebar button:hover { background-color: #2e2e4f; }
-    .submenu { display: none; flex-direction: column; }
-    .submenu button { padding: 10px 40px; background-color: #292940; }
-    .content { flex-grow: 1; padding: 20px; background: #f4f4f4; }
-    input, select, textarea, button { display: block; margin: 10px 0; padding: 10px; width: 100%; max-width: 400px; }
-    h2 { margin-top: 0; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+    }
+    .sidebar {
+      width: 240px;
+      background-color: #1e1e2f;
+      color: white;
+      height: 100vh;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 15px 20px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+    }
+    .sidebar button:hover {
+      background-color: #2e2e4f;
+    }
+    .submenu {
+      display: none;
+      flex-direction: column;
+    }
+    .submenu button {
+      padding: 10px 40px;
+      background-color: #292940;
+    }
+    .content {
+      flex-grow: 1;
+      padding: 20px;
+    }
+    h2 {
+      margin-top: 0;
+    }
   </style>
 </head>
 <body>
