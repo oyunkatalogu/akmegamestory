@@ -1,93 +1,132 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Admin Panel</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <title>Admin Paneli - AkMegaStore</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body { font-family: Arial; padding: 20px; }
+    section { margin-bottom: 30px; }
+    input, select { margin: 5px 0; display: block; width: 300px; padding: 6px; }
+    button { padding: 6px 12px; margin-top: 8px; }
+  </style>
 </head>
 <body>
-  <h1>Admin Panel</h1>
+  <h1>Admin Paneli</h1>
 
-  <h2>Cihaz Ekle</h2>
-  <input type="text" id="deviceName" placeholder="Yeni cihaz ismi">
-  <button onclick="addDevice()">Cihaz Ekle</button>
-
-  <!-- Cihaz Modeli Ekleme Alanı -->
-<h2>Model Ekle</h2>
-<select id="deviceForModel"></select>
-<input type="text" id="modelName" placeholder="Model ismi">
-<button onclick="addModel()">Model Ekle</button>
-
-<!-- Oyun Ekleme Alanı (model seçimi eklendi) -->
-<h2>Oyun Ekle</h2>
-<select id="gameDevice" onchange="loadModels()"></select>
-<select id="gameModel"></select>
-<input type="text" id="gameName" placeholder="Oyun adı">
-<input type="text" id="gameCode" placeholder="Oyun kodu">
-<input type="text" id="gamePrice" placeholder="Fiyat">
-<input type="text" id="gameImageLink" placeholder="Görsel bağlantısı (https://...)">
-<input type="text" id="gameVideoLink" placeholder="Video bağlantısı (YouTube)">
-<button onclick="uploadGame()">Yükle</button>
-
-  <!-- Firebase Yapılandırma -->
+  <!-- Firebase Config -->
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41TSGETe4",
+      apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
       authDomain: "akmegamestore-66522.firebaseapp.com",
       databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "akmegamestore-66522",
-      storageBucket: "akmegamestore-66522.appspot.com",
-      messagingSenderId: "893039272243",
-      appId: "1:893039272243:web:c1b862e113b1e1a9528023"
+      storageBucket: "akmegamestore-66522.firebasestorage.app",
+      messagingSenderId: "89303927223",
+      appId: "1:89303927223:web:c1b6bc1231e191a5920032"
     };
-
     firebase.initializeApp(firebaseConfig);
+  </script>
 
-    // Cihazları yükle
-    firebase.database().ref('devices').on('value', snap => {
-      const sel = document.getElementById('gameDevice');
-      sel.innerHTML = '';
+  <!-- Cihaz Ekle -->
+  <section>
+    <h2>Cihaz Ekle</h2>
+    <input type="text" id="deviceName" placeholder="Cihaz adı">
+    <button onclick="addDevice()">Cihaz Ekle</button>
+  </section>
+
+  <!-- Model Ekle -->
+  <section>
+    <h2>Model Ekle</h2>
+    <select id="deviceSelectModel"></select>
+    <input type="text" id="modelName" placeholder="Model adı">
+    <button onclick="addModel()">Model Ekle</button>
+  </section>
+
+  <!-- Oyun Ekle -->
+  <section>
+    <h2>Oyun Ekle</h2>
+    <select id="deviceSelectGame" onchange="loadModelsForGame()"></select>
+    <select id="modelSelectGame"></select>
+    <input type="text" id="gameName" placeholder="Oyun adı">
+    <input type="text" id="gameCode" placeholder="Oyun kodu">
+    <input type="text" id="gamePrice" placeholder="Fiyat (TL)">
+    <input type="text" id="gameImage" placeholder="Görsel URL (https://)">
+    <input type="text" id="gameVideo" placeholder="Video URL (YouTube)">
+    <button onclick="addGame()">Oyun Ekle</button>
+  </section>
+
+  <script>
+    const db = firebase.database();
+
+    // Tüm cihazları select listelere yükle
+    db.ref('devices').on('value', snap => {
+      const deviceSelects = [document.getElementById('deviceSelectModel'), document.getElementById('deviceSelectGame')];
+      deviceSelects.forEach(sel => sel.innerHTML = '');
       snap.forEach(child => {
-        const opt = document.createElement('option');
-        opt.value = child.key;
-        opt.textContent = child.val().name || child.key;
-        sel.appendChild(opt);
+        deviceSelects.forEach(sel => {
+          const opt = document.createElement('option');
+          opt.value = child.key;
+          opt.textContent = child.val().name;
+          sel.appendChild(opt);
+        });
       });
+      loadModelsForGame(); // otomatik model yükle
     });
 
     function addDevice() {
       const name = document.getElementById('deviceName').value.trim();
       if (!name) return alert("Cihaz adı girin!");
-      firebase.database().ref('devices/' + name).set({ name }).then(() => {
-        alert("Cihaz eklendi!");
+      db.ref('devices/' + name).set({ name }).then(() => {
+        alert("Cihaz eklendi");
         document.getElementById('deviceName').value = '';
       });
     }
 
-    function uploadGame() {
-      const name = document.getElementById('gameName').value;
-      const code = document.getElementById('gameCode').value;
-      const price = document.getElementById('gamePrice').value;
-      const device = document.getElementById('gameDevice').value;
-      const image = document.getElementById('gameImageLink').value;
-      const video = document.getElementById('gameVideoLink').value;
+    function addModel() {
+      const device = document.getElementById('deviceSelectModel').value;
+      const model = document.getElementById('modelName').value.trim();
+      if (!model) return alert("Model adı girin!");
+      db.ref(`devices/${device}/models/${model}`).set({ name: model }).then(() => {
+        alert("Model eklendi");
+        document.getElementById('modelName').value = '';
+      });
+    }
 
-      if (!name || !code || !price || !device || !image || !video) {
-        alert("Tüm alanları doldurun.");
+    function loadModelsForGame() {
+      const device = document.getElementById('deviceSelectGame').value;
+      const modelSel = document.getElementById('modelSelectGame');
+      modelSel.innerHTML = '';
+      db.ref(`devices/${device}/models`).once('value').then(snap => {
+        snap.forEach(child => {
+          const opt = document.createElement('option');
+          opt.value = child.key;
+          opt.textContent = child.key;
+          modelSel.appendChild(opt);
+        });
+      });
+    }
+
+    function addGame() {
+      const device = document.getElementById('deviceSelectGame').value;
+      const model = document.getElementById('modelSelectGame').value;
+      const name = document.getElementById('gameName').value.trim();
+      const code = document.getElementById('gameCode').value.trim();
+      const price = document.getElementById('gamePrice').value.trim();
+      const image = document.getElementById('gameImage').value.trim();
+      const video = document.getElementById('gameVideo').value.trim();
+
+      if (!device || !model || !name || !code || !price || !image || !video) {
+        alert("Tüm alanları doldurun!");
         return;
       }
 
-      const gameData = { name, code, price, device, image, video };
-      firebase.database().ref('games/' + code).set(gameData).then(() => {
+      db.ref('games/' + code).set({
+        device, model, name, code, price, image, video
+      }).then(() => {
         alert("Oyun başarıyla eklendi!");
-        document.getElementById('gameName').value = '';
-        document.getElementById('gameCode').value = '';
-        document.getElementById('gamePrice').value = '';
-        document.getElementById('gameImageLink').value = '';
-        document.getElementById('gameVideoLink').value = '';
+        ['gameName', 'gameCode', 'gamePrice', 'gameImage', 'gameVideo'].forEach(id => document.getElementById(id).value = '');
       });
     }
   </script>
