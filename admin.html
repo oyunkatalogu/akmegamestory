@@ -63,7 +63,13 @@
   <button>Xbox</button>
   <button>Bilgisayar</button>
 </div>
-
+</div><button onclick="toggleSubmenu('siparisSubmenu')">Müşteri Siparişleri</button>
+<div id="siparisSubmenu" class="submenu">
+      <button onclick="selectSection('newsiparis')">Yeni Siparişler</button>
+      <button onclick="selectSection('redsiparis')">Onaylanmayan Siparişler</button>
+      <button onclick="selectSection('onaylanansiparis')">Onaylanan Siparişler</button>
+      <button onclick="selectSection('kargotakip')">Kargoya Verilenler</button>
+      <button onclick="selectSection('teslimsiparis')">Teslim Edilen Siparişler</button>
 <button>İlan Ekle</button>
 <button>Reklam Ekle</button>
 <button>Sayfa Arka Planını Değiştir</button>
@@ -90,6 +96,17 @@
         content.innerHTML = '<h2>Onay Bekleyen Kullanıcılar</h2><p>Burada onay bekleyen kullanıcılar listelenir.</p>';
       } else if (section === 'banliUsers') {
         content.innerHTML = '<h2>Banlanan Kullanıcılar</h2><p>Burada banlanan kullanıcılar listelenir.</p>';
+
+      } else if (section === 'newsiparis') {
+        content.innerHTML = '<h2>Yeni Siparişler</h2><p>Burada yeni siparişler listelenir.</p>';
+      } else if (section === 'redsiparis') {
+        content.innerHTML = '<h2>Onaylanmayan Siparişler</h2><p>Burada onaylanmayan siparişler listelenir.</p>';
+      } else if (section === 'onaylanansiparis') {
+        content.innerHTML = '<h2>Onaylanan Siparişler</h2><p>Burada onaylanan siparişler listelenir.</p>';
+      } else if (section === 'kargotakip') {
+        content.innerHTML = '<h2>Kargoya Verilenler</h2><p>Burada kargoya verilen siparişler listelenir.</p>';
+      } else if (section === 'teslimsiparis') {
+        content.innerHTML = '<h2>Teslim Edilenler</h2><p>Burada teslim edilen siparişler listelenir.</p>';
       }
     }
   </script></body>
