@@ -1,30 +1,42 @@
 <!DOCTYPE html><html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>AkmeGameStore Giriş</title>
-  <link rel="stylesheet" href="style.css" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AkMegaStore</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <style>
+    body { font-family: Arial; background: #1e1e2f; color: #fff; text-align: center; margin: 0; padding: 0; }
+    .container { max-width: 400px; margin: 50px auto; background: #2e2e3f; padding: 20px; border-radius: 10px; }
+    input, button { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
+    button { background: #4CAF50; color: white; cursor: pointer; }
+    .hidden { display: none; }
+  </style>
 </head>
 <body>
-  <div class="container" id="loginBox">
-    <h2>Giriş Yap</h2>
-    <input type="text" id="username" placeholder="Kullanıcı Adı" />
-    <input type="password" id="password" placeholder="Parola" />
-    <button onclick="loginUser()">Giriş Yap</button>
-    <button onclick="showRegister()">Kayıt Ekranı</button>
-  </div>  <div class="container hidden" id="registerBox">
+  <div id="welcome" class="container">
+    <h2>AkMegaStore</h2>
+    <button onclick="showLogin()">Giriş Yap</button>
+    <button onclick="showRegister()">Kayıt Ol</button>
+  </div>  <div id="registerBox" class="container hidden">
     <h2>Kayıt Ol</h2>
-    <input type="text" id="regUsername" placeholder="Kullanıcı Adı" />
-    <input type="email" id="regEmail" placeholder="E-posta" />
-    <input type="tel" id="regPhone" placeholder="Telefon Numarası" />
-    <input type="password" id="regPassword" placeholder="Parola" />
-    <input type="password" id="regPassword2" placeholder="Parola (Tekrar)" />
+    <input type="email" id="regEmail" placeholder="E-posta">
+    <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
+    <input type="tel" id="regPhone" placeholder="Telefon Numarası">
+    <input type="password" id="regPassword" placeholder="Parola">
+    <input type="password" id="regConfirmPassword" placeholder="Parola (Tekrar)">
     <button onclick="registerUser()">Kayıt Ol</button>
-  </div>  <div id="homepage" class="hidden">
-    <h2>Cihaz Seç</h2>
+    <button onclick="goHome()">Geri</button>
+  </div>  <div id="loginBox" class="container hidden">
+    <h2>Giriş Yap</h2>
+    <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
+    <input type="password" id="loginPassword" placeholder="Parola">
+    <button onclick="loginUser()">Giriş Yap</button>
+    <button onclick="resetPassword()">Parolamı Unuttum</button>
+    <button onclick="goHome()">Geri</button>
+  </div>  <div id="mainPage" class="container hidden">
+    <h2>Hoşgeldiniz, <span id="welcomeUser"></span></h2>
     <select id="mainDevice">
       <option value="">Cihaz Seçin</option>
     </select>
@@ -33,64 +45,91 @@
     </select>
   </div>  <script>
     const firebaseConfig = {
-  apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
-  authDomain: "akmegamestore-66522.firebaseapp.com",
-  databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "akmegamestore-66522",
-  storageBucket: "akmegamestore-66522.firebasestorage.app",
-  messagingSenderId: "89303927223",
-  appId: "1:89303927223:web:c1b6bc1231e191a5920032"
-};
+      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41tSGETe4",
+      authDomain: "akmegamestore-66522.firebaseapp.com",
+      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "akmegamestore-66522",
+      storageBucket: "akmegamestore-66522.appspot.com",
+      messagingSenderId: "893039272243",
+      appId: "1:893039272243:web:c1b862e113b1e1a9528023"
+    };
     firebase.initializeApp(firebaseConfig);
 
-    function showRegister() {
-      document.getElementById("loginBox").classList.add("hidden");
-      document.getElementById("registerBox").classList.remove("hidden");
+    function showLogin() {
+      document.getElementById('welcome').classList.add('hidden');
+      document.getElementById('loginBox').classList.remove('hidden');
     }
 
-    async function registerUser() {
-      const username = document.getElementById("regUsername").value;
-      const email = document.getElementById("regEmail").value;
-      const phone = document.getElementById("regPhone").value;
-      const pass1 = document.getElementById("regPassword").value;
-      const pass2 = document.getElementById("regPassword2").value;
+    function showRegister() {
+      document.getElementById('welcome').classList.add('hidden');
+      document.getElementById('registerBox').classList.remove('hidden');
+    }
 
-      if (pass1 !== pass2) return alert("Parolalar eşleşmiyor.");
+    function goHome() {
+      document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+      document.getElementById('welcome').classList.remove('hidden');
+    }
 
-      try {
-        const userCred = await firebase.auth().createUserWithEmailAndPassword(email, pass1);
-        await firebase.database().ref("users/" + username).set({
-          email, phone, username, uid: userCred.user.uid
+    function registerUser() {
+      const email = document.getElementById("regEmail").value.trim();
+      const username = document.getElementById("regUsername").value.trim();
+      const phone = document.getElementById("regPhone").value.trim();
+      const password = document.getElementById("regPassword").value;
+      const confirmPassword = document.getElementById("regConfirmPassword").value;
+
+      if (password !== confirmPassword) return alert("Parolalar eşleşmiyor!");
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          firebase.database().ref("users/" + user.uid).set({ email, username, phone });
+          alert("Kayıt başarılı! Lütfen e-postanızı doğrulayın.");
+          user.sendEmailVerification();
+        })
+        .catch(error => {
+          if (error.code === 'auth/email-already-in-use') {
+            alert("Bu e-posta zaten kayıtlı. Giriş yapın veya parolanızı sıfırlayın.");
+          } else {
+            alert("Hata: " + error.message);
+          }
         });
-        await userCred.user.sendEmailVerification();
-        alert("Kayıt başarılı! Lütfen e-postanızı doğrulayın.");
-        location.reload();
-      } catch (err) {
-        alert("Hata: " + err.message);
-      }
     }
 
     async function loginUser() {
-      const username = document.getElementById('username').value;
-      const password = document.getElementById('password').value;
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value;
 
-      const snapshot = await firebase.database().ref("users").orderByChild("username").equalTo(username).once("value");
-      if (snapshot.exists()) {
-        let user = Object.values(snapshot.val())[0];
-        try {
-          const loginCred = await firebase.auth().signInWithEmailAndPassword(user.email, password);
-          if (!loginCred.user.emailVerified) {
-            return alert("Lütfen e-posta adresinizi doğrulayın.");
-          }
-          document.getElementById("loginBox").classList.add("hidden");
-          document.getElementById("homepage").classList.remove("hidden");
-          loadDevices();
-        } catch (err) {
-          alert("Parola hatalı: " + err.message);
-        }
+      const snap = await firebase.database().ref("users").orderByChild("username").equalTo(username).once("value");
+      if (snap.exists()) {
+        const userObj = Object.entries(snap.val())[0];
+        const user = userObj[1];
+        firebase.auth().signInWithEmailAndPassword(user.email, password)
+          .then(() => {
+            document.getElementById("loginBox").classList.add("hidden");
+            document.getElementById("mainPage").classList.remove("hidden");
+            document.getElementById("welcomeUser").textContent = username;
+            loadDevices();
+          })
+          .catch(() => alert("Parola yanlış."));
       } else {
         alert("Kullanıcı bulunamadı");
       }
+    }
+
+    function resetPassword() {
+      const username = document.getElementById("loginUsername").value.trim();
+      if (!username) return alert("Kullanıcı adınızı girin.");
+
+      firebase.database().ref("users").orderByChild("username").equalTo(username).once("value")
+        .then(snapshot => {
+          if (snapshot.exists()) {
+            const user = Object.values(snapshot.val())[0];
+            firebase.auth().sendPasswordResetEmail(user.email);
+            alert("Parola sıfırlama bağlantısı e-posta adresinize gönderildi.");
+          } else {
+            alert("Kullanıcı bulunamadı");
+          }
+        });
     }
 
     function loadDevices() {
@@ -104,23 +143,19 @@
           mainDevice.appendChild(opt);
         });
       });
-    }
 
-    document.getElementById("mainDevice").addEventListener("change", e => {
-      const subModel = document.getElementById("subModel");
-      subModel.innerHTML = '<option value="">Model Seçin</option>';
-      firebase.database().ref("devices/" + e.target.value + "/models").once("value", snap => {
-        snap.forEach(model => {
-          let opt = document.createElement("option");
-          opt.value = model.key;
-          opt.textContent = model.key;
-          subModel.appendChild(opt);
+      document.getElementById("mainDevice").addEventListener("change", e => {
+        const subModel = document.getElementById("subModel");
+        subModel.innerHTML = '<option value="">Model Seçin</option>';
+        firebase.database().ref("devices/" + e.target.value + "/models").once("value", snap => {
+          snap.forEach(model => {
+            let opt = document.createElement("option");
+            opt.value = model.key;
+            opt.textContent = model.key;
+            subModel.appendChild(opt);
+          });
         });
       });
-    });
-  </script>  <style>
-    .hidden { display: none; }
-    .container { padding: 20px; max-width: 400px; margin: auto; text-align: center; }
-    input, select, button { display: block; width: 100%; margin: 10px 0; padding: 10px; }
-  </style></body>
+    }
+  </script></body>
 </html>
