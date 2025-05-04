@@ -1,20 +1,50 @@
 <!DOCTYPE html><html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Paneli - AkmeGameStore</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
-    body { margin: 0; font-family: Arial, sans-serif; display: flex; }
-    .sidebar { width: 240px; background-color: #1e1e2f; color: white; height: 100vh; padding: 20px 0; display: flex; flex-direction: column; }
-    .sidebar button { background: none; border: none; color: white; padding: 15px 20px; text-align: left; cursor: pointer; width: 100%; }
-    .sidebar button:hover { background-color: #2e2e4f; }
-    .submenu { display: none; flex-direction: column; }
-    .submenu button { padding: 10px 40px; background-color: #292940; }
-    .content { flex-grow: 1; padding: 20px; background: #f4f4f4; }
-    input, select, textarea, button { display: block; margin: 10px 0; padding: 10px; width: 100%; max-width: 500px; }
-    h2 { margin-top: 0; }
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      display: flex;
+    }
+    .sidebar {
+      width: 240px;
+      background-color: #1e1e2f;
+      color: white;
+      height: 100vh;
+      padding: 20px 0;
+      display: flex;
+      flex-direction: column;
+    }
+    .sidebar button {
+      background: none;
+      border: none;
+      color: white;
+      padding: 15px 20px;
+      text-align: left;
+      cursor: pointer;
+      width: 100%;
+    }
+    .sidebar button:hover {
+      background-color: #2e2e4f;
+    }
+    .submenu {
+      display: none;
+      flex-direction: column;
+    }
+    .submenu button {
+      padding: 10px 40px;
+      background-color: #292940;
+    }
+    .content {
+      flex-grow: 1;
+      padding: 20px;
+    }
+    h2 {
+      margin-top: 0;
+    }
   </style>
 </head>
 <body>
@@ -28,41 +58,27 @@
       <button onclick="selectSection('onayUsers')">Onay Bekleyen Kullanıcılar</button>
     </div><button onclick="toggleSubmenu('catalogSubmenu')">Katalog</button>
 <div id="catalogSubmenu" class="submenu">
-  <button onclick="selectSection('addDevice')">Cihaz Ekle</button>
-  <button onclick="selectSection('addModel')">Model Ekle</button>
-  <button onclick="selectSection('addGame')">Oyun Ekle</button>
+  <button>PlayStation</button>
+  <button>Nintendo</button>
+  <button>Xbox</button>
+  <button>Bilgisayar</button>
 </div>
-
-<button onclick="toggleSubmenu('siparisSubmenu')">Müşteri Siparişleri</button>
+      <button onclick="toggleSubmenu('siparisSubmenu')">Müşteri Siparişleri</button>
 <div id="siparisSubmenu" class="submenu">
-  <button onclick="selectSection('newsiparis')">Yeni Siparişler</button>
-  <button onclick="selectSection('redsiparis')">Onaylanmayan Siparişler</button>
-  <button onclick="selectSection('onaylanansiparis')">Onaylanan Siparişler</button>
-  <button onclick="selectSection('kargotakip')">Kargoya Verilenler</button>
-  <button onclick="selectSection('teslimsiparis')">Teslim Edilen Siparişler</button>
+      <button onclick="selectSection('newsiparis')">Yeni Siparişler</button>
+      <button onclick="selectSection('redsiparis')">Onaylanmayan Siparişler</button>
+      <button onclick="selectSection('onaylanansiparis')">Onaylanan Siparişler</button>
+      <button onclick="selectSection('kargotakip')">Kargoya Verilenler</button>
+      <button onclick="selectSection('teslimsiparis')">Teslim Edilen Siparişler</button>
 </div>
-
 <button>İlan Ekle</button>
 <button>Reklam Ekle</button>
 <button>Sayfa Arka Planını Değiştir</button>
-
-  </div>  <div class="content" id="mainContent">
+</div>
+  <div class="content" id="mainContent">
     <h2>Admin Paneli</h2>
     <p>Soldaki menüden işlem seçin.</p>
   </div>  <script>
-    window.onload = function () {
-      const firebaseConfig = {
-        apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41tSGETe4",
-        authDomain: "akmegamestore-66522.firebaseapp.com",
-        databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-        projectId: "akmegamestore-66522",
-        storageBucket: "akmegamestore-66522.appspot.com",
-        messagingSenderId: "893039272243",
-        appId: "1:893039272243:web:c1b862e113b1e1a9528023"
-      };
-      firebase.initializeApp(firebaseConfig);
-    };
-
     function toggleSubmenu(id) {
       const submenu = document.getElementById(id);
       submenu.style.display = submenu.style.display === 'block' ? 'none' : 'flex';
@@ -80,6 +96,7 @@
         content.innerHTML = '<h2>Onay Bekleyen Kullanıcılar</h2><p>Burada onay bekleyen kullanıcılar listelenir.</p>';
       } else if (section === 'banliUsers') {
         content.innerHTML = '<h2>Banlanan Kullanıcılar</h2><p>Burada banlanan kullanıcılar listelenir.</p>';
+
       } else if (section === 'newsiparis') {
         content.innerHTML = '<h2>Yeni Siparişler</h2><p>Burada yeni siparişler listelenir.</p>';
       } else if (section === 'redsiparis') {
@@ -90,82 +107,7 @@
         content.innerHTML = '<h2>Kargoya Verilenler</h2><p>Burada kargoya verilen siparişler listelenir.</p>';
       } else if (section === 'teslimsiparis') {
         content.innerHTML = '<h2>Teslim Edilenler</h2><p>Burada teslim edilen siparişler listelenir.</p>';
-      } else if (section === 'addDevice') {
-        content.innerHTML = <h2>Cihaz Ekle</h2><input id='deviceName' placeholder='Cihaz Adı'><button onclick='addDevice()'>Ekle</button>;
-      } else if (section === 'addModel') {
-        content.innerHTML = <h2>Model Ekle</h2><select id='deviceSelect'><option>Yükleniyor...</option></select><input id='modelName' placeholder='Model Adı'><button onclick='addModel()'>Modeli Ekle</button>; loadDevices();
-      } else if (section === 'addGame') {
-        content.innerHTML = <h2>Oyun Ekle</h2><select id='deviceForGame'><option>Yükleniyor...</option></select><select id='modelForGame'><option>Model Seç</option></select><input id='gameName' placeholder='Oyun Adı'><textarea id='gameDesc' placeholder='Açıklama'></textarea><input id='gameImage' placeholder='Görsel URL'><input id='gameVideo' placeholder='Video URL'><input id='gamePrice' placeholder='Fiyat'><button onclick='addGame()'>Oyunu Ekle</button>; loadDevicesForGame();}
-}
-
-function addDevice() {
-  const name = document.getElementById('deviceName').value;
-  if (name) firebase.database().ref('devices/' + name).set({ models: {} });
-  alert("Cihaz eklendi: " + name);
-}
-
-function addModel() {
-  const device = document.getElementById('deviceSelect').value;
-  const model = document.getElementById('modelName').value;
-  if (device && model) {
-    firebase.database().ref(devices/${device}/models/${model}).set(true);
-    alert("Model eklendi: " + device + " / " + model);
-  }
-}
-
-function addGame() {
-  const device = document.getElementById('deviceForGame').value;
-  const model = document.getElementById('modelForGame').value;
-  const name = document.getElementById('gameName').value;
-  const desc = document.getElementById('gameDesc').value;
-  const image = document.getElementById('gameImage').value;
-  const video = document.getElementById('gameVideo').value;
-  const price = document.getElementById('gamePrice').value;
-  const code = ${model}-${name.replace(/\s+/g, '').toLowerCase()};
-  const gameData = { name, desc, image, video, price, code, device, model };
-
-  firebase.database().ref(games/${code}).set(gameData);
-  alert("Oyun eklendi: " + code);
-}
-
-function loadDevices() {
-  const sel = document.getElementById('deviceSelect');
-  firebase.database().ref('devices').once('value', snap => {
-    sel.innerHTML = '';
-    snap.forEach(child => {
-      let opt = document.createElement('option');
-      opt.value = child.key;
-      opt.textContent = child.key;
-      sel.appendChild(opt);
-    });
-  });
-}
-
-function loadDevicesForGame() {
-  const deviceSel = document.getElementById('deviceForGame');
-  const modelSel = document.getElementById('modelForGame');
-  firebase.database().ref('devices').once('value', snap => {
-    deviceSel.innerHTML = '';
-    snap.forEach(child => {
-      let opt = document.createElement('option');
-      opt.value = child.key;
-      opt.textContent = child.key;
-      deviceSel.appendChild(opt);
-    });
-  });
-  deviceSel.addEventListener('change', () => {
-    modelSel.innerHTML = '';
-    firebase.database().ref(devices/${deviceSel.value}/models).once('value', snap => {
-      snap.forEach(child => {
-        let opt = document.createElement('option');
-        opt.value = child.key;
-        opt.textContent = child.key;
-        modelSel.appendChild(opt);
-      });
-    });
-  });
-}
-
-  </script>
-</body>
+      }
+    }
+  </script></body>
 </html>
