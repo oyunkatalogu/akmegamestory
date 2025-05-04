@@ -157,5 +157,59 @@
         });
       });
     }
+
+<div id="catalogSection" style="display:none; padding: 20px; flex-wrap: wrap; gap: 16px; justify-content: center;" class="game-catalog"></div>
+
+<script>
+  const user = JSON.parse(localStorage.getItem("currentUser"));
+  if (user) {
+    document.getElementById('catalogSection').style.display = 'flex';
+
+    firebase.database().ref('games').once('value').then(snapshot => {
+      const catalog = document.getElementById('catalogSection');
+      snapshot.forEach(child => {
+        const game = child.val();
+        const card = document.createElement('div');
+        card.style.width = '180px';
+        card.style.border = '1px solid #ccc';
+        card.style.borderRadius = '10px';
+        card.style.overflow = 'hidden';
+        card.style.padding = '10px';
+        card.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+        card.style.background = 'white';
+        card.innerHTML = `
+          <img src="${game.image}" alt="${game.name}" style="width: 100%; height: 150px; object-fit: cover;">
+          <h3 style="font-size: 16px;">${game.name}</h3>
+          <p style="margin: 4px 0;">${game.device} / ${game.model}</p>
+          <p style="font-weight: bold;">${game.price} TL</p>
+          <button onclick="addToCart('${game.code}')" style="margin: 5px 0;">Sepete Ekle</button>
+          <button onclick="removeFromCart('${game.code}')">Sepetten Çıkar</button>
+        `;
+        catalog.appendChild(card);
+      });
+    });
+  }
+
+  function getCart() {
+    return JSON.parse(localStorage.getItem("cart") || "[]");
+  }
+
+  function addToCart(code) {
+    let cart = getCart();
+    if (!cart.includes(code)) {
+      cart.push(code);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      alert("Sepete eklendi");
+    }
+  }
+
+  function removeFromCart(code) {
+    let cart = getCart();
+    cart = cart.filter(item => item !== code);
+    localStorage.setItem("cart", JSON.stringify(cart));
+    alert("Sepetten çıkarıldı");
+  }
+</script>
+    
   </script></body>
 </html>
