@@ -55,6 +55,7 @@
       <button onclick="selectSection('standartUsers')">Standart Kullanıcılar</button>
       <button onclick="selectSection('ozelUsers')">Özel Kullanıcılar</button>
       <button onclick="selectSection('banliUsers')">Banlanan Kullanıcılar</button>
+      <button onclick="selectSection('onayUsers')">Onay Bekleyen Kullanıcılar</button>
     </div><button onclick="toggleSubmenu('catalogSubmenu')">Katalog</button>
 <div id="catalogSubmenu" class="submenu">
   <button>PlayStation</button>
@@ -85,6 +86,8 @@
         content.innerHTML = '<h2>Özel Kullanıcılar</h2><p>Burada özel kullanıcılar listelenir.</p>';
       } else if (section === 'newUsers') {
         content.innerHTML = '<h2>Yeni Kullanıcılar</h2><p>Burada yeni kullanıcılar listelenir.</p>';
+      } else if (section === 'onayUsers') {
+        content.innerHTML = '<h2>Onay Bekleyen Kullanıcılar</h2><p>Burada onay bekleyen kullanıcılar listelenir.</p>';
       } else if (section === 'banliUsers') {
         content.innerHTML = '<h2>Banlanan Kullanıcılar</h2><p>Burada banlanan kullanıcılar listelenir.</p>';
       }
