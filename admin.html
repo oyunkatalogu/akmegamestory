@@ -51,6 +51,7 @@
   <div class="sidebar">
     <button onclick="toggleSubmenu('usersSubmenu')">Kullanıcılar</button>
     <div id="usersSubmenu" class="submenu">
+      <button onclick="selectSection('newUsers')">Yeni Kullanıcılar</button>
       <button onclick="selectSection('standartUsers')">Standart Kullanıcılar</button>
       <button onclick="selectSection('ozelUsers')">Özel Kullanıcılar</button>
       <button onclick="selectSection('banliUsers')">Banlanan Kullanıcılar</button>
@@ -82,6 +83,8 @@
         content.innerHTML = '<h2>Standart Kullanıcılar</h2><p>Burada standart kullanıcılar listelenir.</p>';
       } else if (section === 'ozelUsers') {
         content.innerHTML = '<h2>Özel Kullanıcılar</h2><p>Burada özel kullanıcılar listelenir.</p>';
+      } else if (section === 'newUsers') {
+        content.innerHTML = '<h2>Yeni Kullanıcılar</h2><p>Burada yeni kullanıcılar listelenir.</p>';
       } else if (section === 'banliUsers') {
         content.innerHTML = '<h2>Banlanan Kullanıcılar</h2><p>Burada banlanan kullanıcılar listelenir.</p>';
       }
