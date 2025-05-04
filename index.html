@@ -3,8 +3,18 @@
 <head>
   <meta charset="UTF-8" />
   <title>AkMegaStore</title>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js">
+  function showForgot() {
+    alert("Şifre kurtarma özelliği henüz aktif değil.");
+  }
+</script>
+
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js">
+  function showForgot() {
+    alert("Şifre kurtarma özelliği henüz aktif değil.");
+  }
+</script>
+
   <style>
     body { font-family: Arial; padding: 20px; background: #1b1b1b; color: #fff; }
     .container { max-width: 400px; margin: auto; background: #333; padding: 20px; border-radius: 10px; }
@@ -29,8 +39,8 @@
   <input type="text" id="username" placeholder="Kullanıcı Adı">
   <input type="password" id="password" placeholder="Parola">
   <button onclick="login()">Giriş Yap</button>
-  <button onclick="showRegister()">Parolamı Unuttum</button>
-  <button onclick="showRegister()">Geri</button>
+  <button onclick="showForgot()">Parolamı Unuttum</button>
+  <button onclick="showLogin()">Geri</button>
 </div>
 
 <div id="registerSection" class="container" style="display:none;">
@@ -57,14 +67,14 @@
 
 <script>
   const firebaseConfig = {
-  apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
-  authDomain: "akmegamestore-66522.firebaseapp.com",
-  databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "akmegamestore-66522",
-  storageBucket: "akmegamestore-66522.firebasestorage.app",
-  messagingSenderId: "89303927223",
-  appId: "1:89303927223:web:c1b6bc1231e191a5920032"
-};
+    apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
+    authDomain: "akmegamestore-66522.firebaseapp.com",
+    databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "akmegamestore-66522",
+    storageBucket: "akmegamestore-66522.firebasestorage.app",
+    messagingSenderId: "89303927223",
+    appId: "1:89303927223:web:c1b6bc1231e191a5920032"
+  };
   firebase.initializeApp(firebaseConfig);
 
   function showRegister() {
@@ -234,6 +244,11 @@ Kullanıcı: ${user}`;
       card.style.display = name.includes(term) ? "block" : "none";
     });
   }
+
+  function showForgot() {
+    alert("Şifre kurtarma özelliği henüz aktif değil.");
+  }
 </script>
+
 </body>
 </html>
