@@ -1,50 +1,22 @@
-<!DOCTYPE html><html lang="tr">
-<head>
+<!DOCTYPE html><html lang="tr"><head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Admin Paneli - AkmeGameStore</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
-    body {
-      margin: 0;
-      font-family: Arial, sans-serif;
-      display: flex;
-    }
-    .sidebar {
-      width: 240px;
-      background-color: #1e1e2f;
-      color: white;
-      height: 100vh;
-      padding: 20px 0;
-      display: flex;
-      flex-direction: column;
-    }
-    .sidebar button {
-      background: none;
-      border: none;
-      color: white;
-      padding: 15px 20px;
-      text-align: left;
-      cursor: pointer;
-      width: 100%;
-    }
-    .sidebar button:hover {
-      background-color: #2e2e4f;
-    }
-    .submenu {
-      display: none;
-      flex-direction: column;
-    }
-    .submenu button {
-      padding: 10px 40px;
-      background-color: #292940;
-    }
-    .content {
-      flex-grow: 1;
-      padding: 20px;
-    }
-    h2 {
-      margin-top: 0;
-    }
+    body { margin: 0; font-family: Arial, sans-serif; display: flex; }
+    .sidebar { width: 240px; background-color: #1e1e2f; color: white; height: 100vh; padding: 20px 0; display: flex; flex-direction: column; }
+    .sidebar button { background: none; border: none; color: white; padding: 15px 20px; text-align: left; cursor: pointer; width: 100%; }
+    .sidebar button:hover { background-color: #2e2e4f; }
+    .submenu { display: none; flex-direction: column; }
+    .submenu button { padding: 10px 40px; background-color: #292940; }
+    .content { flex-grow: 1; padding: 20px; }
+    input, textarea, select { display: block; margin: 10px 0; padding: 10px; width: 100%; max-width: 500px; }
+    h2 { margin-top: 0; }
+    .preview img, .preview iframe { margin: 10px 0; max-width: 500px; display: block; }
+    .game-item { border: 1px solid #ccc; padding: 10px; margin: 10px 0; background: #fff; }
+    .game-item button { margin-right: 10px; }
   </style>
 </head>
 <body>
@@ -57,51 +29,152 @@
       <button onclick="selectSection('banliUsers')">Banlanan Kullanıcılar</button>
       <button onclick="selectSection('onayUsers')">Onay Bekleyen Kullanıcılar</button>
     </div>
-      <button onclick="toggleSubmenu('siparisSubmenu')">Müşteri Siparişleri</button>
-<div id="siparisSubmenu" class="submenu">
+    <button onclick="toggleSubmenu('siparisSubmenu')">Müşteri Siparişleri</button>
+    <div id="siparisSubmenu" class="submenu">
       <button onclick="selectSection('newsiparis')">Yeni Siparişler</button>
       <button onclick="selectSection('redsiparis')">Onaylanmayan Siparişler</button>
       <button onclick="selectSection('onaylanansiparis')">Onaylanan Siparişler</button>
       <button onclick="selectSection('kargotakip')">Kargoya Verilenler</button>
       <button onclick="selectSection('teslimsiparis')">Teslim Edilen Siparişler</button>
-</div>
-<button>İlan Ekle</button>
-<button>Reklam Ekle</button>
-<button>Sayfa Arka Planını Değiştir</button>
-</div>
+    </div>
+    <button onclick="selectSection('ilanEkle')">İlan Ekle</button>
+    <button>Reklam Ekle</button>
+    <button>Sayfa Arka Planını Değiştir</button>
+  </div>
   <div class="content" id="mainContent">
     <h2>Admin Paneli</h2>
     <p>Soldaki menüden işlem seçin.</p>
-  </div>  <script>
-    function toggleSubmenu(id) {
-      const submenu = document.getElementById(id);
-      submenu.style.display = submenu.style.display === 'block' ? 'none' : 'flex';
-    }
+  </div>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41tSGETe4",
+      authDomain: "akmegamestore-66522.firebaseapp.com",
+      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "akmegamestore-66522",
+      storageBucket: "akmegamestore-66522.appspot.com",
+      messagingSenderId: "893039272243",
+      appId: "1:893039272243:web:c1b862e113b1e1a9528023"
+    };
+    firebase.initializeApp(firebaseConfig);function toggleSubmenu(id) {
+  const submenu = document.getElementById(id);
+  submenu.style.display = submenu.style.display === 'block' ? 'none' : 'flex';
+}
 
-    function selectSection(section) {
-      const content = document.getElementById("mainContent");
-      if (section === 'standartUsers') {
-        content.innerHTML = '<h2>Standart Kullanıcılar</h2><p>Burada standart kullanıcılar listelenir.</p>';
-      } else if (section === 'ozelUsers') {
-        content.innerHTML = '<h2>Özel Kullanıcılar</h2><p>Burada özel kullanıcılar listelenir.</p>';
-      } else if (section === 'newUsers') {
-        content.innerHTML = '<h2>Yeni Kullanıcılar</h2><p>Burada yeni kullanıcılar listelenir.</p>';
-      } else if (section === 'onayUsers') {
-        content.innerHTML = '<h2>Onay Bekleyen Kullanıcılar</h2><p>Burada onay bekleyen kullanıcılar listelenir.</p>';
-      } else if (section === 'banliUsers') {
-        content.innerHTML = '<h2>Banlanan Kullanıcılar</h2><p>Burada banlanan kullanıcılar listelenir.</p>';
+function selectSection(section) {
+  const content = document.getElementById("mainContent");
+  if (section === 'ilanEkle') {
+    content.innerHTML = `
+      <h2>İlan Ekle</h2>
+      <input id="cihazAdi" placeholder="Cihaz Adı">
+      <input id="cihazModeli" placeholder="Cihaz Modeli">
+      <input id="oyunAdi" placeholder="Oyun Adı">
+      <textarea id="oyunAciklama" placeholder="Oyun Açıklaması"></textarea>
+      <input id="oyunFiyat" placeholder="Fiyat">
+      <input id="gorselUrl" placeholder="Oyun Görsel Linki" oninput="previewImage()">
+      <input id="videoUrl" placeholder="Oyun Video Linki" oninput="previewVideo()">
+      <div class="preview">
+        <img id="previewImg" src="" alt="Görsel Önizleme" />
+        <iframe id="previewVideo" src="" frameborder="0" allowfullscreen></iframe>
+      </div>
+      <button onclick="saveGame()">Kaydet</button>
+      <hr>
+      <h2>Ekli Oyunlar</h2>
+      <div id="gameList"></div>
+    `;
+    loadGames();
+  }
+}
 
-      } else if (section === 'newsiparis') {
-        content.innerHTML = '<h2>Yeni Siparişler</h2><p>Burada yeni siparişler listelenir.</p>';
-      } else if (section === 'redsiparis') {
-        content.innerHTML = '<h2>Onaylanmayan Siparişler</h2><p>Burada onaylanmayan siparişler listelenir.</p>';
-      } else if (section === 'onaylanansiparis') {
-        content.innerHTML = '<h2>Onaylanan Siparişler</h2><p>Burada onaylanan siparişler listelenir.</p>';
-      } else if (section === 'kargotakip') {
-        content.innerHTML = '<h2>Kargoya Verilenler</h2><p>Burada kargoya verilen siparişler listelenir.</p>';
-      } else if (section === 'teslimsiparis') {
-        content.innerHTML = '<h2>Teslim Edilenler</h2><p>Burada teslim edilen siparişler listelenir.</p>';
-      }
-    }
-  </script></body>
+function previewImage() {
+  const url = document.getElementById('gorselUrl').value;
+  document.getElementById('previewImg').src = url;
+}
+
+function previewVideo() {
+  const url = document.getElementById('videoUrl').value;
+  let embedUrl = url.includes("youtube.com/watch?v=") ? url.replace("watch?v=", "embed/") : url;
+  document.getElementById('previewVideo').src = embedUrl;
+}
+
+function saveGame(existingCode = null) {
+  const cihaz = document.getElementById('cihazAdi').value.trim();
+  const model = document.getElementById('cihazModeli').value.trim();
+  const oyunAdi = document.getElementById('oyunAdi').value.trim();
+  const aciklama = document.getElementById('oyunAciklama').value.trim();
+  const fiyat = document.getElementById('oyunFiyat').value.trim();
+  const gorsel = document.getElementById('gorselUrl').value.trim();
+  const video = document.getElementById('videoUrl').value.trim();
+  const kod = existingCode || `${model}-${oyunAdi}`.replace(/\s+/g, '-').toLowerCase();
+
+  if (!cihaz || !model || !oyunAdi || !fiyat) {
+    alert("Lütfen gerekli tüm alanları doldurun.");
+    return;
+  }
+
+  const gameData = {
+    name: oyunAdi,
+    description: aciklama,
+    price: fiyat,
+    image: gorsel,
+    video: video,
+    device: cihaz,
+    model: model,
+    code: kod
+  };
+
+  firebase.database().ref(`games/${kod}`).set(gameData).then(() => {
+    alert("Oyun kaydedildi.");
+    selectSection('ilanEkle');
+  });
+}
+
+function loadGames() {
+  const list = document.getElementById("gameList");
+  list.innerHTML = '';
+  firebase.database().ref("games").once("value", snap => {
+    snap.forEach(child => {
+      const g = child.val();
+      const div = document.createElement("div");
+      div.className = "game-item";
+      div.innerHTML = `
+        <strong>${g.name}</strong> (${g.device} / ${g.model})<br>
+        ${g.price} TL<br>
+        <img src="${g.image}" alt="" width="100"><br>
+        <iframe src="${g.video.replace("watch?v=", "embed/")}" width="200" height="150" frameborder="0"></iframe><br>
+        <button onclick="editGame('${g.code}')">Düzenle</button>
+        <button onclick="deleteGame('${g.code}')">Sil</button>
+      `;
+      list.appendChild(div);
+    });
+  });
+}
+
+function editGame(code) {
+  firebase.database().ref("games/" + code).once("value", snap => {
+    const g = snap.val();
+    document.getElementById("cihazAdi").value = g.device;
+    document.getElementById("cihazModeli").value = g.model;
+    document.getElementById("oyunAdi").value = g.name;
+    document.getElementById("oyunAciklama").value = g.description;
+    document.getElementById("oyunFiyat").value = g.price;
+    document.getElementById("gorselUrl").value = g.image;
+    document.getElementById("videoUrl").value = g.video;
+    previewImage();
+    previewVideo();
+    window.scrollTo(0, 0);
+    document.querySelector("button[onclick^='saveGame']").setAttribute("onclick", `saveGame('${code}')`);
+  });
+}
+
+function deleteGame(code) {
+  if (confirm("Bu oyunu silmek istediğinize emin misiniz?")) {
+    firebase.database().ref("games/" + code).remove().then(() => {
+      alert("Oyun silindi.");
+      selectSection('ilanEkle');
+    });
+  }
+}
+
+  </script>
+</body>
 </html>
