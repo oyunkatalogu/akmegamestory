@@ -141,8 +141,94 @@
         el.style.display = el.style.display === "none" ? "block" : "none";
       }
     }
+    function loadGames() {
+      firebase.database().ref("games").once("value").then(snapshot => {
+        const container = document.getElementById("gameCatalog");
+        const favContainer = document.getElementById("favCatalog");
+        container.innerHTML = '';
+        favContainer.innerHTML = '';
+        snapshot.forEach(child => {
+          const g = child.val();
+          const embedLink = toEmbedURL(g.video);
+          const div = document.createElement("div");
+          div.className = "game-card";
+          div.innerHTML = `
+            <img src="${g.image}" style="width:100%;height:150px;object-fit:cover">
+            <h3>${g.name}</h3>
+            <p>${g.device} / ${g.model}</p>
+            <p>${g.price} TL</p>
+            <button onclick="addToCart('${g.code}')">Sepete Ekle</button>
+            <button onclick="removeFromCart('${g.code}')">Sepetten Çıkar</button>
+            <button onclick="toggleFavorite('${g.code}')">Favori</button>
+            ${embedLink ? `
+              <button onclick="toggleVideo('${g.code}')">Videoyu Oynat / Kapat</button>
+              <div id="video-${g.code}" style="display:none; margin-top:10px;">
+                <iframe width="100%" height="150" src="${embedLink}" frameborder="0" allowfullscreen></iframe>
+              </div>
+            ` : ''}
+          `;
+          const isFav = getFavorites().includes(g.code);
+          (isFav ? favContainer : container).appendChild(div);
+        });
+      });
+    }
+    function renderCart() {
+      const cart = getCart();
+      if (cart.length === 0) {
+        document.getElementById("cartList").innerHTML = "Sepet boş.";
+        document.getElementById("totalPrice").textContent = "Toplam: 0 TL";
+        return;
+      }
 
-    
+      let total = 0;
+      let html = "<ul>";
+      const promises = cart.map(code => 
+        firebase.database().ref('games/' + code).once('value').then(snap => {
+          const game = snap.val();
+          if (game) {
+            total += parseFloat(game.price);
+            html += `<li>${game.name} - ${game.price} TL</li>`;
+          }
+        })
+      );
+
+      Promise.all(promises).then(() => {
+        html += "</ul>";
+        document.getElementById("cartList").innerHTML = html;
+        document.getElementById("totalPrice").textContent = `Toplam: ${total.toFixed(2)} TL`;
+      });
+    }
+
+    function sendCartViaWhatsApp() {
+      const cart = getCart();
+      if (cart.length === 0) return alert("Sepet boş!");
+
+      let message = "Siparişim:\n";
+      let total = 0;
+      const promises = cart.map(code =>
+        firebase.database().ref('games/' + code).once('value').then(snap => {
+          const game = snap.val();
+          if (game) {
+            message += `- ${game.name} (${game.price} TL)\n`;
+            total += parseFloat(game.price);
+          }
+        })
+      );
+      Promise.all(promises).then(() => {
+        const username = localStorage.getItem("user") || "Bilinmeyen Kullanıcı";
+        message += `\nToplam: ${total.toFixed(2)} TL\nKullanıcı: ${username}`;
+        const url = "https://wa.me/905548801010?text=" + encodeURIComponent(message);
+        window.open(url, "_blank");
+      });
+    }
+
+    function filterGames() {
+      const term = document.getElementById("searchBox").value.toLowerCase();
+      const cards = document.querySelectorAll("#gameCatalog .game-card");
+      cards.forEach(card => {
+        const name = card.querySelector("h3").textContent.toLowerCase();
+        card.style.display = name.includes(term) ? "block" : "none";
+      });
     function showLogin() {
       document.getElementById('welcome').classList.add('hidden');
       document.getElementById('loginBox').classList.remove('hidden');
