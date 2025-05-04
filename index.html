@@ -6,30 +6,51 @@
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
+    body { font-family: Arial; padding: 20px; background: #f5f5f5; }
     .game-card {
-      width: 180px;
-      border: 1px solid #ccc;
+      width: 200px;
+      background: white;
       border-radius: 10px;
       padding: 10px;
       margin: 10px;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
     }
     .catalog { display: flex; flex-wrap: wrap; justify-content: center; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; max-width: 300px; }
+    h2 { margin-top: 40px; }
   </style>
 </head>
 <body>
-  <div id="loginSection">
+  <!-- Kayıt ve Giriş -->
+  <div id="authSection">
+    <h2>Kayıt Ol</h2>
+    <input type="text" id="regUsername" placeholder="Kullanıcı adı">
+    <input type="password" id="regPassword" placeholder="Şifre">
+    <button onclick="register()">Kayıt Ol</button>
+    <hr>
     <h2>Giriş Yap</h2>
-    <input type="text" id="username" placeholder="Kullanıcı adı"><br>
-    <input type="password" id="password" placeholder="Şifre"><br>
+    <input type="text" id="username" placeholder="Kullanıcı adı">
+    <input type="password" id="password" placeholder="Şifre">
     <button onclick="login()">Giriş</button>
   </div>
 
+  <!-- Katalog -->
   <div id="catalogSection" style="display:none;">
     <h2>Oyun Kataloğu</h2>
+    <input type="text" id="searchBox" oninput="filterGames()" placeholder="Oyun ara...">
     <div class="catalog" id="gameCatalog"></div>
+
+    <h2>Favorilerim</h2>
+    <div class="catalog" id="favCatalog"></div>
+
+    <!-- Sepet -->
+    <h2>Sepetim</h2>
+    <div id="cartList"></div>
+    <p id="totalPrice">Toplam: 0 TL</p>
+    <button onclick="sendCartViaWhatsApp()">WhatsApp ile Gönder</button>
   </div>
 
+  <!-- Firebase + JS -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
@@ -42,21 +63,72 @@
     };
     firebase.initializeApp(firebaseConfig);
 
+    function register() {
+      const user = document.getElementById("regUsername").value;
+      const pass = document.getElementById("regPassword").value;
+      if (user && pass) {
+        localStorage.setItem("user", user);
+        localStorage.setItem("pass_" + user, pass);
+        alert("Kayıt başarılı!");
+      }
+    }
+
     function login() {
       const user = document.getElementById("username").value;
       const pass = document.getElementById("password").value;
-      if (user && pass) {
+      if (localStorage.getItem("pass_" + user) === pass) {
         localStorage.setItem("user", user);
-        document.getElementById("loginSection").style.display = "none";
+        document.getElementById("authSection").style.display = "none";
         document.getElementById("catalogSection").style.display = "block";
         loadGames();
+        renderCart();
+      } else {
+        alert("Giriş bilgileri hatalı.");
       }
+    }
+
+    function getCart() {
+      return JSON.parse(localStorage.getItem("cart") || "[]");
+    }
+
+    function getFavorites() {
+      return JSON.parse(localStorage.getItem("favorites") || "[]");
+    }
+
+    function addToCart(code) {
+      let cart = getCart();
+      if (!cart.includes(code)) {
+        cart.push(code);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+        alert("Sepete eklendi!");
+      }
+    }
+
+    function removeFromCart(code) {
+      let cart = getCart().filter(c => c !== code);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
+      alert("Sepetten çıkarıldı!");
+    }
+
+    function toggleFavorite(code) {
+      let favs = getFavorites();
+      if (favs.includes(code)) {
+        favs = favs.filter(f => f !== code);
+      } else {
+        favs.push(code);
+      }
+      localStorage.setItem("favorites", JSON.stringify(favs));
+      loadGames();
     }
 
     function loadGames() {
       firebase.database().ref("games").once("value").then(snapshot => {
         const container = document.getElementById("gameCatalog");
+        const favContainer = document.getElementById("favCatalog");
         container.innerHTML = '';
+        favContainer.innerHTML = '';
         snapshot.forEach(child => {
           const g = child.val();
           const div = document.createElement("div");
@@ -68,30 +140,72 @@
             <p>${g.price} TL</p>
             <button onclick="addToCart('${g.code}')">Sepete Ekle</button>
             <button onclick="removeFromCart('${g.code}')">Sepetten Çıkar</button>
+            <button onclick="toggleFavorite('${g.code}')">Favori</button>
           `;
-          container.appendChild(div);
+          const isFav = getFavorites().includes(g.code);
+          (isFav ? favContainer : container).appendChild(div);
         });
       });
     }
 
-    function getCart() {
-      return JSON.parse(localStorage.getItem("cart") || "[]");
-    }
-
-    function addToCart(code) {
-      let cart = getCart();
-      if (!cart.includes(code)) {
-        cart.push(code);
-        localStorage.setItem("cart", JSON.stringify(cart));
-        alert("Eklendi");
+    function renderCart() {
+      const cart = getCart();
+      if (cart.length === 0) {
+        document.getElementById("cartList").innerHTML = "Sepet boş.";
+        document.getElementById("totalPrice").textContent = "Toplam: 0 TL";
+        return;
       }
+
+      let total = 0;
+      let html = "<ul>";
+      const promises = cart.map(code => 
+        firebase.database().ref('games/' + code).once('value').then(snap => {
+          const game = snap.val();
+          if (game) {
+            total += parseFloat(game.price);
+            html += `<li>${game.name} - ${game.price} TL</li>`;
+          }
+        })
+      );
+
+      Promise.all(promises).then(() => {
+        html += "</ul>";
+        document.getElementById("cartList").innerHTML = html;
+        document.getElementById("totalPrice").textContent = `Toplam: ${total.toFixed(2)} TL`;
+      });
     }
 
-    function removeFromCart(code) {
-      let cart = getCart();
-      cart = cart.filter(c => c !== code);
-      localStorage.setItem("cart", JSON.stringify(cart));
-      alert("Çıkarıldı");
+    function sendCartViaWhatsApp() {
+      const cart = getCart();
+      if (cart.length === 0) return alert("Sepet boş!");
+
+      let message = "Siparişim:\n";
+      let total = 0;
+      const promises = cart.map(code =>
+        firebase.database().ref('games/' + code).once('value').then(snap => {
+          const game = snap.val();
+          if (game) {
+            message += `- ${game.name} (${game.price} TL)\n`;
+            total += parseFloat(game.price);
+          }
+        })
+      );
+
+      Promise.all(promises).then(() => {
+        const username = localStorage.getItem("user") || "Bilinmeyen Kullanıcı";
+        message += `\nToplam: ${total.toFixed(2)} TL\nKullanıcı: ${username}`;
+        const url = "https://wa.me/905548801010?text=" + encodeURIComponent(message);
+        window.open(url, "_blank");
+      });
+    }
+
+    function filterGames() {
+      const term = document.getElementById("searchBox").value.toLowerCase();
+      const cards = document.querySelectorAll("#gameCatalog .game-card");
+      cards.forEach(card => {
+        const name = card.querySelector("h3").textContent.toLowerCase();
+        card.style.display = name.includes(term) ? "block" : "none";
+      });
     }
   </script>
 </body>
