@@ -2,51 +2,38 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <title>AkMegaStore</title>
+  <title>Oyun Kataloğu</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
     body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+    select, button { padding: 10px; margin: 5px; }
+    .catalog { display: flex; flex-wrap: wrap; gap: 10px; }
     .game-card {
-      width: 200px;
       background: white;
       border-radius: 10px;
       padding: 10px;
-      margin: 10px;
-      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+      width: 200px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
     }
-    .catalog { display: flex; flex-wrap: wrap; justify-content: center; }
-    input, button { padding: 8px; margin: 5px 0; width: 100%; max-width: 300px; }
-    h2 { margin-top: 40px; }
+    .game-card img { width: 100%; height: 120px; object-fit: cover; }
   </style>
 </head>
 <body>
-  <div id="authSection">
-    <h2>Kayıt Ol</h2>
-    <input type="text" id="regUsername" placeholder="Kullanıcı adı">
-    <input type="password" id="regPassword" placeholder="Şifre">
-    <button onclick="register()">Kayıt Ol</button>
-    <hr>
-    <h2>Giriş Yap</h2>
-    <input type="text" id="username" placeholder="Kullanıcı adı">
-    <input type="password" id="password" placeholder="Şifre">
-    <button onclick="login()">Giriş</button>
-  </div>
+  <h2>Filtrele</h2>
+  <select id="filterDevice" onchange="loadModelOptions()"></select>
+  <select id="filterModel" onchange="filterGames()"></select>
 
-  <div id="catalogSection" style="display:none;">
-    <h2>Oyun Kataloğu</h2>
-    <input type="text" id="searchBox" oninput="filterGames()" placeholder="Oyun ara...">
-    <div class="catalog" id="gameCatalog"></div>
+  <h2>Oyunlar</h2>
+  <div class="catalog" id="gameCatalog"></div>
 
-    <h2>Favorilerim</h2>
-    <div class="catalog" id="favCatalog"></div>
+  <h2>Favorilerim</h2>
+  <div class="catalog" id="favCatalog"></div>
 
-    <h2>Sepetim</h2>
-    <div id="cartList"></div>
-    <p id="totalPrice">Toplam: 0 TL</p>
-    <button onclick="sendCartViaWhatsApp()">WhatsApp ile Gönder</button>
-  </div>
-
+  <h2>Sepetim</h2>
+  <ul id="cartList"></ul>
+  <p id="totalPrice">Toplam: 0 TL</p>
+  <button onclick="sendCartViaWhatsApp()">WhatsApp ile Gönder</button>
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
@@ -58,44 +45,6 @@
       appId: "1:89303927223:web:c1b6bc1231e191a5920032"
     };
     firebase.initializeApp(firebaseConfig);
-
-    function toEmbedURL(url) {
-      if (!url) return '';
-      if (url.includes("youtube.com/embed")) return url;
-      if (url.includes("youtu.be/")) {
-        const id = url.split("youtu.be/")[1].split("?")[0];
-        return `https://www.youtube.com/embed/${id}`;
-      }
-      if (url.includes("youtube.com/watch?v=")) {
-        const id = url.split("v=")[1].split("&")[0];
-        return `https://www.youtube.com/embed/${id}`;
-      }
-      return '';
-    }
-
-    function register() {
-      const user = document.getElementById("regUsername").value;
-      const pass = document.getElementById("regPassword").value;
-      if (user && pass) {
-        localStorage.setItem("user", user);
-        localStorage.setItem("pass_" + user, pass);
-        alert("Kayıt başarılı!");
-      }
-    }
-
-    function login() {
-      const user = document.getElementById("username").value;
-      const pass = document.getElementById("password").value;
-      if (localStorage.getItem("pass_" + user) === pass) {
-        localStorage.setItem("user", user);
-        document.getElementById("authSection").style.display = "none";
-        document.getElementById("catalogSection").style.display = "block";
-        loadGames();
-        renderCart();
-      } else {
-        alert("Giriş bilgileri hatalı.");
-      }
-    }
 
     function getCart() {
       return JSON.parse(localStorage.getItem("cart") || "[]");
@@ -111,7 +60,6 @@
         cart.push(code);
         localStorage.setItem("cart", JSON.stringify(cart));
         renderCart();
-        alert("Sepete eklendi!");
       }
     }
 
@@ -119,7 +67,6 @@
       let cart = getCart().filter(c => c !== code);
       localStorage.setItem("cart", JSON.stringify(cart));
       renderCart();
-      alert("Sepetten çıkarıldı!");
     }
 
     function toggleFavorite(code) {
@@ -130,107 +77,110 @@
         favs.push(code);
       }
       localStorage.setItem("favorites", JSON.stringify(favs));
-      loadGames();
-    }
-
-    function toggleVideo(code) {
-      const el = document.getElementById("video-" + code);
-      if (el) {
-        el.style.display = el.style.display === "none" ? "block" : "none";
-      }
-    }
-
-    function loadGames() {
-      firebase.database().ref("games").once("value").then(snapshot => {
-        const container = document.getElementById("gameCatalog");
-        const favContainer = document.getElementById("favCatalog");
-        container.innerHTML = '';
-        favContainer.innerHTML = '';
-        snapshot.forEach(child => {
-          const g = child.val();
-          const embedLink = toEmbedURL(g.video);
-          const div = document.createElement("div");
-          div.className = "game-card";
-          div.innerHTML = `
-            <img src="${g.image}" style="width:100%;height:150px;object-fit:cover">
-            <h3>${g.name}</h3>
-            <p>${g.device} / ${g.model}</p>
-            <p>${g.price} TL</p>
-            <button onclick="addToCart('${g.code}')">Sepete Ekle</button>
-            <button onclick="removeFromCart('${g.code}')">Sepetten Çıkar</button>
-            <button onclick="toggleFavorite('${g.code}')">Favori</button>
-            ${embedLink ? `
-              <button onclick="toggleVideo('${g.code}')">Videoyu Oynat / Kapat</button>
-              <div id="video-${g.code}" style="display:none; margin-top:10px;">
-                <iframe width="100%" height="150" src="${embedLink}" frameborder="0" allowfullscreen></iframe>
-              </div>
-            ` : ''}
-          `;
-          const isFav = getFavorites().includes(g.code);
-          (isFav ? favContainer : container).appendChild(div);
-        });
-      });
+      filterGames();
     }
 
     function renderCart() {
       const cart = getCart();
-      if (cart.length === 0) {
-        document.getElementById("cartList").innerHTML = "Sepet boş.";
-        document.getElementById("totalPrice").textContent = "Toplam: 0 TL";
-        return;
-      }
-
+      let html = "";
       let total = 0;
-      let html = "<ul>";
-      const promises = cart.map(code => 
-        firebase.database().ref('games/' + code).once('value').then(snap => {
+      const promises = cart.map(code =>
+        firebase.database().ref("games/" + code).once("value").then(snap => {
           const game = snap.val();
           if (game) {
             total += parseFloat(game.price);
-            html += `<li>${game.name} - ${game.price} TL</li>`;
+            html += <li>${game.name} - ${game.price} TL</li>;
           }
         })
       );
-
       Promise.all(promises).then(() => {
-        html += "</ul>";
         document.getElementById("cartList").innerHTML = html;
-        document.getElementById("totalPrice").textContent = `Toplam: ${total.toFixed(2)} TL`;
+        document.getElementById("totalPrice").textContent = "Toplam: " + total.toFixed(2) + " TL";
       });
     }
 
     function sendCartViaWhatsApp() {
       const cart = getCart();
       if (cart.length === 0) return alert("Sepet boş!");
-
       let message = "Siparişim:\n";
       let total = 0;
       const promises = cart.map(code =>
         firebase.database().ref('games/' + code).once('value').then(snap => {
           const game = snap.val();
           if (game) {
-            message += `- ${game.name} (${game.price} TL)\n`;
+            message += - ${game.name} (${game.price} TL)\n;
             total += parseFloat(game.price);
           }
         })
       );
-
       Promise.all(promises).then(() => {
-        const username = localStorage.getItem("user") || "Bilinmeyen Kullanıcı";
-        message += `\nToplam: ${total.toFixed(2)} TL\nKullanıcı: ${username}`;
+        message += \nToplam: ${total.toFixed(2)} TL;
         const url = "https://wa.me/905548801010?text=" + encodeURIComponent(message);
         window.open(url, "_blank");
       });
     }
 
-    function filterGames() {
-      const term = document.getElementById("searchBox").value.toLowerCase();
-      const cards = document.querySelectorAll("#gameCatalog .game-card");
-      cards.forEach(card => {
-        const name = card.querySelector("h3").textContent.toLowerCase();
-        card.style.display = name.includes(term) ? "block" : "none";
+    function loadDeviceOptions() {
+      firebase.database().ref("devices").once("value").then(snapshot => {
+        const sel = document.getElementById("filterDevice");
+        sel.innerHTML = "";
+        snapshot.forEach(child => {
+          const opt = document.createElement("option");
+          opt.value = child.key;
+          opt.textContent = child.key;
+          sel.appendChild(opt);
+        });
+        loadModelOptions();
       });
     }
+
+    function loadModelOptions() {
+      const device = document.getElementById("filterDevice").value;
+      const modelSel = document.getElementById("filterModel");
+      modelSel.innerHTML = "";
+      firebase.database().ref("devices/" + device + "/models").once("value").then(snapshot => {
+        snapshot.forEach(child => {
+          const opt = document.createElement("option");
+          opt.value = child.key;
+          opt.textContent = child.key;
+          modelSel.appendChild(opt);
+        });
+        filterGames();
+      });
+    }
+
+    function filterGames() {
+      const device = document.getElementById("filterDevice").value;
+      const model = document.getElementById("filterModel").value;
+      firebase.database().ref("games").once("value").then(snapshot => {
+        const gameCatalog = document.getElementById("gameCatalog");
+        const favCatalog = document.getElementById("favCatalog");
+        gameCatalog.innerHTML = "";
+        favCatalog.innerHTML = "";
+        const favs = getFavorites();
+        snapshot.forEach(child => {
+          const g = child.val();
+          if (g.device === device && g.model === model) {
+            const card = document.createElement("div");
+            card.className = "game-card";
+            card.innerHTML = `
+              <img src="${g.image}" alt="${g.name}">
+              <h4>${g.name}</h4>
+              <p>${g.price} TL</p>
+              <button onclick="addToCart('${g.code}')">Sepete Ekle</button>
+              <button onclick="removeFromCart('${g.code}')">Sepetten Çıkar</button>
+              <button onclick="toggleFavorite('${g.code}')">${favs.includes(g.code) ? "Favoriden Çıkar" : "Favori Ekle"}</button>
+            `;
+            (favs.includes(g.code) ? favCatalog : gameCatalog).appendChild(card);
+          }
+        });
+      });
+    }
+
+    window.addEventListener("load", () => {
+      loadDeviceOptions();
+      renderCart();
+    });
   </script>
 </body>
 </html>
