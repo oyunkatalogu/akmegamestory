@@ -21,6 +21,7 @@
   </style>
 </head>
 <body>
+
   <!-- Kayıt ve Giriş -->
   <div id="authSection">
     <h2>Kayıt Ol</h2>
@@ -50,7 +51,7 @@
     <button onclick="sendCartViaWhatsApp()">WhatsApp ile Gönder</button>
   </div>
 
-  <!-- Firebase + JS -->
+  <!-- Firebase ve Script -->
   <script>
     const firebaseConfig = {
       apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
@@ -123,6 +124,13 @@
       loadGames();
     }
 
+    function toggleVideo(code) {
+      const el = document.getElementById("video-" + code);
+      if (el) {
+        el.style.display = el.style.display === "none" ? "block" : "none";
+      }
+    }
+
     function loadGames() {
       firebase.database().ref("games").once("value").then(snapshot => {
         const container = document.getElementById("gameCatalog");
@@ -141,6 +149,12 @@
             <button onclick="addToCart('${g.code}')">Sepete Ekle</button>
             <button onclick="removeFromCart('${g.code}')">Sepetten Çıkar</button>
             <button onclick="toggleFavorite('${g.code}')">Favori</button>
+            ${g.video && g.video.includes("youtube.com/embed") ? `
+              <button onclick="toggleVideo('${g.code}')">Videoyu Oynat / Kapat</button>
+              <div id="video-${g.code}" style="display:none; margin-top:10px;">
+                <iframe width="100%" height="150" src="${g.video}" frameborder="0" allowfullscreen></iframe>
+              </div>
+            ` : ''}
           `;
           const isFav = getFavorites().includes(g.code);
           (isFav ? favContainer : container).appendChild(div);
