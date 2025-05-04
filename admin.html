@@ -2,7 +2,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Paneli - AkmeGameStore</title>
+  <title>Admin Paneli - AkMegaStore</title>
   <style>
     body {
       margin: 0;
@@ -32,10 +32,10 @@
     }
     .submenu {
       display: none;
-      padding-left: 20px;
+      flex-direction: column;
     }
     .submenu button {
-      padding: 10px 20px;
+      padding: 10px 40px;
       background-color: #292940;
     }
     .content {
@@ -51,9 +51,9 @@
   <div class="sidebar">
     <button onclick="toggleSubmenu('usersSubmenu')">Kullanıcılar</button>
     <div id="usersSubmenu" class="submenu">
-      <button>Banlanan Kullanıcılar</button>
-      <button>Özel Kullanıcılar</button>
-      <button>Standart Kullanıcılar</button>
+      <button onclick="selectSection('standartUsers')">Standart Kullanıcılar</button>
+      <button onclick="selectSection('ozelUsers')">Özel Kullanıcılar</button>
+      <button onclick="selectSection('banliUsers')">Banlanan Kullanıcılar</button>
     </div><button onclick="toggleSubmenu('catalogSubmenu')">Katalog</button>
 <div id="catalogSubmenu" class="submenu">
   <button>PlayStation</button>
@@ -67,13 +67,24 @@
 <button>Sayfa Arka Planını Değiştir</button>
 
   </div>
-  <div class="content">
+  <div class="content" id="mainContent">
     <h2>Admin Paneli</h2>
     <p>Soldaki menüden işlem seçin.</p>
   </div>  <script>
     function toggleSubmenu(id) {
       const submenu = document.getElementById(id);
-      submenu.style.display = submenu.style.display === 'block' ? 'none' : 'block';
+      submenu.style.display = submenu.style.display === 'block' ? 'none' : 'flex';
+    }
+
+    function selectSection(section) {
+      const content = document.getElementById("mainContent");
+      if (section === 'standartUsers') {
+        content.innerHTML = '<h2>Standart Kullanıcılar</h2><p>Burada standart kullanıcılar listelenir.</p>';
+      } else if (section === 'ozelUsers') {
+        content.innerHTML = '<h2>Özel Kullanıcılar</h2><p>Burada özel kullanıcılar listelenir.</p>';
+      } else if (section === 'banliUsers') {
+        content.innerHTML = '<h2>Banlanan Kullanıcılar</h2><p>Burada banlanan kullanıcılar listelenir.</p>';
+      }
     }
   </script></body>
 </html>
