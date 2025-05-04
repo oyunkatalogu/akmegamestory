@@ -80,30 +80,67 @@
       return '';
     }
 
-    function register() {
-      const user = document.getElementById("regUsername").value;
-      const pass = document.getElementById("regPassword").value;
-      if (user && pass) {
-        localStorage.setItem("user", user);
-        localStorage.setItem("pass_" + user, pass);
-        alert("Kayıt başarılı!");
-      }
+    function registerUser() {
+      const email = document.getElementById("regEmail").value.trim();
+      const username = document.getElementById("regUsername").value.trim();
+      const phone = document.getElementById("regPhone").value.trim();
+      const password = document.getElementById("regPassword").value;
+      const confirmPassword = document.getElementById("regConfirmPassword").value;
+
+      if (password !== confirmPassword) return alert("Parolalar eşleşmiyor!");
+
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          firebase.database().ref("users/" + user.uid).set({ email, username, phone });
+          alert("Kayıt başarılı! Lütfen e-postanızı doğrulayın.");
+          user.sendEmailVerification();
+        })
+        .catch(error => {
+          if (error.code === 'auth/email-already-in-use') {
+            alert("Bu e-posta zaten kayıtlı. Giriş yapın veya parolanızı sıfırlayın.");
+          } else {
+            alert("Hata: " + error.message);
+          }
+        });
     }
 
-    function login() {
-      const user = document.getElementById("username").value;
-      const pass = document.getElementById("password").value;
-      if (localStorage.getItem("pass_" + user) === pass) {
-        localStorage.setItem("user", user);
-        document.getElementById("authSection").style.display = "none";
-        document.getElementById("catalogSection").style.display = "block";
-        loadGames();
-        renderCart();
+    async function loginUser() {
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value;
+
+      const snap = await firebase.database().ref("users").orderByChild("username").equalTo(username).once("value");
+      if (snap.exists()) {
+        const userObj = Object.entries(snap.val())[0];
+        const user = userObj[1];
+        firebase.auth().signInWithEmailAndPassword(user.email, password)
+          .then(() => {
+            document.getElementById("loginBox").classList.add("hidden");
+            document.getElementById("mainPage").classList.remove("hidden");
+            document.getElementById("welcomeUser").textContent = username;
+            loadDevices();
+          })
+          .catch(() => alert("Parola yanlış."));
       } else {
-        alert("Giriş bilgileri hatalı.");
+        alert("Kullanıcı bulunamadı");
       }
     }
 
+    function resetPassword() {
+      const username = document.getElementById("loginUsername").value.trim();
+      if (!username) return alert("Kullanıcı adınızı girin.");
+
+      firebase.database().ref("users").orderByChild("username").equalTo(username).once("value")
+        .then(snapshot => {
+          if (snapshot.exists()) {
+            const user = Object.values(snapshot.val())[0];
+            firebase.auth().sendPasswordResetEmail(user.email);
+            alert("Parola sıfırlama bağlantısı e-posta adresinize gönderildi.");
+          } else {
+            alert("Kullanıcı bulunamadı");
+          }
+        });
+    }
     function getCart() {
       return JSON.parse(localStorage.getItem("cart") || "[]");
     }
