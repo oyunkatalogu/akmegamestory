@@ -117,6 +117,31 @@
         alert("Sepete eklendi!");
       }
     }
+    function removeFromCart(code) {
+      let cart = getCart().filter(c => c !== code);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
+      alert("Sepetten çıkarıldı!");
+    }
+
+    function toggleFavorite(code) {
+      let favs = getFavorites();
+      if (favs.includes(code)) {
+        favs = favs.filter(f => f !== code);
+      } else {
+        favs.push(code);
+      }
+      localStorage.setItem("favorites", JSON.stringify(favs));
+      loadGames();
+    }
+
+    function toggleVideo(code) {
+      const el = document.getElementById("video-" + code);
+      if (el) {
+        el.style.display = el.style.display === "none" ? "block" : "none";
+      }
+    }
+
     
     function showLogin() {
       document.getElementById('welcome').classList.add('hidden');
