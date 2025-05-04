@@ -100,6 +100,23 @@
         alert("Giriş bilgileri hatalı.");
       }
     }
+    function getCart() {
+      return JSON.parse(localStorage.getItem("cart") || "[]");
+    }
+
+    function getFavorites() {
+      return JSON.parse(localStorage.getItem("favorites") || "[]");
+    }
+
+    function addToCart(code) {
+      let cart = getCart();
+      if (!cart.includes(code)) {
+        cart.push(code);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+        alert("Sepete eklendi!");
+      }
+    }
     
     function showLogin() {
       document.getElementById('welcome').classList.add('hidden');
