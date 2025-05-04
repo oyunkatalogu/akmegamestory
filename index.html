@@ -1,17 +1,17 @@
 <!DOCTYPE html>
 <html lang="tr">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>akmegamestore</title>
-  <link rel="stylesheet" href="style.css" />
+  <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
   <h1>akmegamestore</h1>
 
-  <input type="text" id="search" placeholder="Oyun ara..." />
+  <input type="text" id="search" placeholder="Oyun ara...">
 
   <label for="deviceSelect"><b>Cihaz Seç:</b></label>
   <select id="deviceSelect">
@@ -23,24 +23,25 @@
   <h2>Sepet</h2>
   <ul id="cart"></ul>
   <p>Toplam Fiyat: <span id="totalPrice">0</span> TL</p>
-  <input type="text" id="address" placeholder="Kargo adresinizi girin" />
+  <input type="text" id="address" placeholder="Kargo adresinizi girin">
   <button id="buy">WhatsApp'tan Sipariş Ver</button>
 
   <script>
-    // Firebase yapılandırması
+    // Firebase ayarları
     const firebaseConfig = {
-      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41TSGETe4",
-      authDomain: "akmegamestore-66522.firebaseapp.com",
-      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "akmegamestore-66522",
-      storageBucket: "akmegamestore-66522.appspot.com",
-      messagingSenderId: "893039272243",
-      appId: "1:893039272243:web:c1b862e113b1e1a9528023"
-    };
+  apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
+  authDomain: "akmegamestore-66522.firebaseapp.com",
+  databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "akmegamestore-66522",
+  storageBucket: "akmegamestore-66522.firebasestorage.app",
+  messagingSenderId: "89303927223",
+  appId: "1:89303927223:web:c1b6bc1231e191a5920032"
+};
 
     // Firebase'i başlat
     firebase.initializeApp(firebaseConfig);
 
+    // Veri yapılarını tanımla
     let games = [], cart = [];
 
     const deviceSelect = document.getElementById('deviceSelect');
@@ -49,6 +50,7 @@
     const totalPriceEl = document.getElementById('totalPrice');
     const searchInput = document.getElementById('search');
 
+    // Sepeti güncelle
     function updateCart() {
       cartList.innerHTML = '';
       let total = 0;
@@ -68,11 +70,13 @@
       totalPriceEl.textContent = total;
     }
 
+    // YouTube linkini embed'e dönüştür
     function embedYouTube(url) {
       const match = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&]+)/);
       return match ? https://www.youtube.com/embed/${match[1]} : '';
     }
 
+    // Oyunları göster
     function renderGames() {
       gameList.innerHTML = '';
       const search = searchInput.value.toLowerCase();
@@ -103,6 +107,7 @@
         });
     }
 
+    // Cihazları yükle
     firebase.database().ref('devices').on('value', snap => {
       deviceSelect.innerHTML = '';
       snap.forEach(child => {
@@ -114,6 +119,7 @@
       renderGames();
     });
 
+    // Oyunları yükle
     firebase.database().ref('games').on('value', snap => {
       games = [];
       snap.forEach(child => {
