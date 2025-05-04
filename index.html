@@ -159,8 +159,6 @@
     }
 
 <div id="catalogSection" style="display:none; padding: 20px; flex-wrap: wrap; gap: 16px; justify-content: center;" class="game-catalog"></div>
-
-<script>
   const user = JSON.parse(localStorage.getItem("currentUser"));
   if (user) {
     document.getElementById('catalogSection').style.display = 'flex';
@@ -208,8 +206,6 @@
     cart = cart.filter(item => item !== code);
     localStorage.setItem("cart", JSON.stringify(cart));
     alert("Sepetten çıkarıldı");
-  }
-</script>
-    
+  }  
   </script></body>
 </html>
