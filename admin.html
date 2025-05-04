@@ -15,14 +15,22 @@
   <input type="text" id="deviceName" placeholder="Yeni cihaz ismi">
   <button onclick="addDevice()">Cihaz Ekle</button>
 
-  <h2>Oyun Ekle</h2>
-  <select id="gameDevice"></select>
-  <input type="text" id="gameName" placeholder="Oyun adı">
-  <input type="text" id="gameCode" placeholder="Oyun kodu">
-  <input type="text" id="gamePrice" placeholder="Fiyat">
-  <input type="text" id="gameImageLink" placeholder="Görsel bağlantısı (https://...)">
-  <input type="text" id="gameVideoLink" placeholder="Video bağlantısı (YouTube)">
-  <button onclick="uploadGame()">Yükle</button>
+  <!-- Cihaz Modeli Ekleme Alanı -->
+<h2>Model Ekle</h2>
+<select id="deviceForModel"></select>
+<input type="text" id="modelName" placeholder="Model ismi">
+<button onclick="addModel()">Model Ekle</button>
+
+<!-- Oyun Ekleme Alanı (model seçimi eklendi) -->
+<h2>Oyun Ekle</h2>
+<select id="gameDevice" onchange="loadModels()"></select>
+<select id="gameModel"></select>
+<input type="text" id="gameName" placeholder="Oyun adı">
+<input type="text" id="gameCode" placeholder="Oyun kodu">
+<input type="text" id="gamePrice" placeholder="Fiyat">
+<input type="text" id="gameImageLink" placeholder="Görsel bağlantısı (https://...)">
+<input type="text" id="gameVideoLink" placeholder="Video bağlantısı (YouTube)">
+<button onclick="uploadGame()">Yükle</button>
 
   <!-- Firebase Yapılandırma -->
   <script>
