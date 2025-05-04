@@ -1,53 +1,33 @@
-<!DOCTYPE html><html lang="tr"><head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Paneli - AkmeGameStore</title>
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-  <style>
-    body { margin: 0; font-family: Arial, sans-serif; display: flex; }
-    .sidebar { width: 240px; background-color: #1e1e2f; color: white; height: 100vh; padding: 20px 0; display: flex; flex-direction: column; }
-    .sidebar button { background: none; border: none; color: white; padding: 15px 20px; text-align: left; cursor: pointer; width: 100%; }
-    .sidebar button:hover { background-color: #2e2e4f; }
-    .submenu { display: none; flex-direction: column; }
-    .submenu button { padding: 10px 40px; background-color: #292940; }
-    .content { flex-grow: 1; padding: 20px; }
-    input, textarea, select { display: block; margin: 10px 0; padding: 10px; width: 100%; max-width: 500px; }
-    h2 { margin-top: 0; }
-    .preview img, .preview iframe { margin: 10px 0; max-width: 500px; display: block; }
-    .game-item { border: 1px solid #ccc; padding: 10px; margin: 10px 0; background: #fff; }
-    .game-item button { margin-right: 10px; }
-  </style>
 </head>
 <body>
-  <div class="sidebar">
-    <button onclick="toggleSubmenu('usersSubmenu')">Kullanıcılar</button>
-    <div id="usersSubmenu" class="submenu">
-      <button onclick="selectSection('newUsers')">Yeni Kullanıcılar</button>
-      <button onclick="selectSection('standartUsers')">Standart Kullanıcılar</button>
-      <button onclick="selectSection('ozelUsers')">Özel Kullanıcılar</button>
-      <button onclick="selectSection('banliUsers')">Banlanan Kullanıcılar</button>
-      <button onclick="selectSection('onayUsers')">Onay Bekleyen Kullanıcılar</button>
-    </div>
-    <button onclick="toggleSubmenu('siparisSubmenu')">Müşteri Siparişleri</button>
-    <div id="siparisSubmenu" class="submenu">
-      <button onclick="selectSection('newsiparis')">Yeni Siparişler</button>
-      <button onclick="selectSection('redsiparis')">Onaylanmayan Siparişler</button>
-      <button onclick="selectSection('onaylanansiparis')">Onaylanan Siparişler</button>
-      <button onclick="selectSection('kargotakip')">Kargoya Verilenler</button>
-      <button onclick="selectSection('teslimsiparis')">Teslim Edilen Siparişler</button>
-    </div>
-    <button onclick="selectSection('ilanEkle')">İlan Ekle</button>
-    <button>Reklam Ekle</button>
-    <button>Sayfa Arka Planını Değiştir</button>
-  </div>
-  <div class="content" id="mainContent">
-    <h2>Admin Paneli</h2>
-    <p>Soldaki menüden işlem seçin.</p>
-  </div>
+  <h1>Admin Panel</h1>
+
+  <h2>Cihaz Ekle</h2>
+  <input type="text" id="deviceName" placeholder="Yeni cihaz ismi">
+  <button onclick="addDevice()">Cihaz Ekle</button>
+
+  <h2>Oyun Ekle</h2>
+  <select id="gameDevice"></select>
+  <input type="text" id="gameName" placeholder="Oyun adı">
+  <input type="text" id="gameCode" placeholder="Oyun kodu">
+  <input type="text" id="gamePrice" placeholder="Fiyat">
+  <input type="text" id="gameImageLink" placeholder="Görsel bağlantısı (https://...)">
+  <input type="text" id="gameVideoLink" placeholder="Video bağlantısı (YouTube)">
+  <button onclick="uploadGame()">Yükle</button>
+
+  <!-- Firebase Yapılandırma -->
   <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41tSGETe4",
+      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41TSGETe4",
       authDomain: "akmegamestore-66522.firebaseapp.com",
       databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "akmegamestore-66522",
@@ -55,126 +35,53 @@
       messagingSenderId: "893039272243",
       appId: "1:893039272243:web:c1b862e113b1e1a9528023"
     };
-    firebase.initializeApp(firebaseConfig);function toggleSubmenu(id) {
-  const submenu = document.getElementById(id);
-  submenu.style.display = submenu.style.display === 'block' ? 'none' : 'flex';
-}
 
-function selectSection(section) {
-  const content = document.getElementById("mainContent");
-  if (section === 'ilanEkle') {
-    content.innerHTML = `
-      <h2>İlan Ekle</h2>
-      <input id="cihazAdi" placeholder="Cihaz Adı">
-      <input id="cihazModeli" placeholder="Cihaz Modeli">
-      <input id="oyunAdi" placeholder="Oyun Adı">
-      <textarea id="oyunAciklama" placeholder="Oyun Açıklaması"></textarea>
-      <input id="oyunFiyat" placeholder="Fiyat">
-      <input id="gorselUrl" placeholder="Oyun Görsel Linki" oninput="previewImage()">
-      <input id="videoUrl" placeholder="Oyun Video Linki" oninput="previewVideo()">
-      <div class="preview">
-        <img id="previewImg" src="" alt="Görsel Önizleme" />
-        <iframe id="previewVideo" src="" frameborder="0" allowfullscreen></iframe>
-      </div>
-      <button onclick="saveGame()">Kaydet</button>
-      <hr>
-      <h2>Ekli Oyunlar</h2>
-      <div id="gameList"></div>
-    `;
-    loadGames();
-  }
-}
+    firebase.initializeApp(firebaseConfig);
 
-function previewImage() {
-  const url = document.getElementById('gorselUrl').value;
-  document.getElementById('previewImg').src = url;
-}
-
-function previewVideo() {
-  const url = document.getElementById('videoUrl').value;
-  let embedUrl = url.includes("youtube.com/watch?v=") ? url.replace("watch?v=", "embed/") : url;
-  document.getElementById('previewVideo').src = embedUrl;
-}
-
-function saveGame(existingCode = null) {
-  const cihaz = document.getElementById('cihazAdi').value.trim();
-  const model = document.getElementById('cihazModeli').value.trim();
-  const oyunAdi = document.getElementById('oyunAdi').value.trim();
-  const aciklama = document.getElementById('oyunAciklama').value.trim();
-  const fiyat = document.getElementById('oyunFiyat').value.trim();
-  const gorsel = document.getElementById('gorselUrl').value.trim();
-  const video = document.getElementById('videoUrl').value.trim();
-  const kod = existingCode || `${model}-${oyunAdi}`.replace(/\s+/g, '-').toLowerCase();
-
-  if (!cihaz || !model || !oyunAdi || !fiyat) {
-    alert("Lütfen gerekli tüm alanları doldurun.");
-    return;
-  }
-
-  const gameData = {
-    name: oyunAdi,
-    description: aciklama,
-    price: fiyat,
-    image: gorsel,
-    video: video,
-    device: cihaz,
-    model: model,
-    code: kod
-  };
-
-  firebase.database().ref(`games/${kod}`).set(gameData).then(() => {
-    alert("Oyun kaydedildi.");
-    selectSection('ilanEkle');
-  });
-}
-
-function loadGames() {
-  const list = document.getElementById("gameList");
-  list.innerHTML = '';
-  firebase.database().ref("games").once("value", snap => {
-    snap.forEach(child => {
-      const g = child.val();
-      const div = document.createElement("div");
-      div.className = "game-item";
-      div.innerHTML = `
-        <strong>${g.name}</strong> (${g.device} / ${g.model})<br>
-        ${g.price} TL<br>
-        <img src="${g.image}" alt="" width="100"><br>
-        <iframe src="${g.video.replace("watch?v=", "embed/")}" width="200" height="150" frameborder="0"></iframe><br>
-        <button onclick="editGame('${g.code}')">Düzenle</button>
-        <button onclick="deleteGame('${g.code}')">Sil</button>
-      `;
-      list.appendChild(div);
+    // Cihazları yükle
+    firebase.database().ref('devices').on('value', snap => {
+      const sel = document.getElementById('gameDevice');
+      sel.innerHTML = '';
+      snap.forEach(child => {
+        const opt = document.createElement('option');
+        opt.value = child.key;
+        opt.textContent = child.val().name || child.key;
+        sel.appendChild(opt);
+      });
     });
-  });
-}
 
-function editGame(code) {
-  firebase.database().ref("games/" + code).once("value", snap => {
-    const g = snap.val();
-    document.getElementById("cihazAdi").value = g.device;
-    document.getElementById("cihazModeli").value = g.model;
-    document.getElementById("oyunAdi").value = g.name;
-    document.getElementById("oyunAciklama").value = g.description;
-    document.getElementById("oyunFiyat").value = g.price;
-    document.getElementById("gorselUrl").value = g.image;
-    document.getElementById("videoUrl").value = g.video;
-    previewImage();
-    previewVideo();
-    window.scrollTo(0, 0);
-    document.querySelector("button[onclick^='saveGame']").setAttribute("onclick", `saveGame('${code}')`);
-  });
-}
+    function addDevice() {
+      const name = document.getElementById('deviceName').value.trim();
+      if (!name) return alert("Cihaz adı girin!");
+      firebase.database().ref('devices/' + name).set({ name }).then(() => {
+        alert("Cihaz eklendi!");
+        document.getElementById('deviceName').value = '';
+      });
+    }
 
-function deleteGame(code) {
-  if (confirm("Bu oyunu silmek istediğinize emin misiniz?")) {
-    firebase.database().ref("games/" + code).remove().then(() => {
-      alert("Oyun silindi.");
-      selectSection('ilanEkle');
-    });
-  }
-}
+    function uploadGame() {
+      const name = document.getElementById('gameName').value;
+      const code = document.getElementById('gameCode').value;
+      const price = document.getElementById('gamePrice').value;
+      const device = document.getElementById('gameDevice').value;
+      const image = document.getElementById('gameImageLink').value;
+      const video = document.getElementById('gameVideoLink').value;
 
+      if (!name || !code || !price || !device || !image || !video) {
+        alert("Tüm alanları doldurun.");
+        return;
+      }
+
+      const gameData = { name, code, price, device, image, video };
+      firebase.database().ref('games/' + code).set(gameData).then(() => {
+        alert("Oyun başarıyla eklendi!");
+        document.getElementById('gameName').value = '';
+        document.getElementById('gameCode').value = '';
+        document.getElementById('gamePrice').value = '';
+        document.getElementById('gameImageLink').value = '';
+        document.getElementById('gameVideoLink').value = '';
+      });
+    }
   </script>
 </body>
 </html>
