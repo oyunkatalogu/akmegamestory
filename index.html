@@ -1,36 +1,24 @@
-<!DOCTYPE html>
-<html lang="tr">
+<!DOCTYPE html><html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>akmegamestore</title>
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css" />
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
-  <h1>akmegamestore</h1>
-
-  <input type="text" id="search" placeholder="Oyun ara...">
-
+  <h1>akmegamestore</h1>  <input type="text" id="search" placeholder="Oyun ara...">
   <label for="deviceSelect">Cihaz Seç:</label>
   <select id="deviceSelect">
     <option>Yükleniyor...</option>
-  </select>
-
-  <div id="gameList"></div>
-
-  <h2>Sepet</h2>
+  </select>  <div id="gameList"></div>  <h2>Sepet</h2>
   <ul id="cart"></ul>
   <p>Toplam Fiyat: <span id="totalPrice">0</span> TL</p>
-
   <input type="text" id="address" placeholder="Kargo adresinizi girin">
-  <button id="buy">WhatsApp'tan Sipariş Ver</button>
-
-  <script>
-    // Firebase ayarları
+  <button id="buy">WhatsApp'tan Sipariş Ver</button>  <script>
     const firebaseConfig = {
-      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41tSGETe4",
+      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41TSGETe4",
       authDomain: "akmegamestore-66522.firebaseapp.com",
       databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
       projectId: "akmegamestore-66522",
@@ -38,27 +26,27 @@
       messagingSenderId: "893039272243",
       appId: "1:893039272243:web:c1b862e113b1e1a9528023"
     };
+
     firebase.initializeApp(firebaseConfig);
 
-    // Değişkenler
     let games = [], cart = [];
 
-    const deviceSelect = document.getElementById('deviceSelect');
-    const gameList = document.getElementById('gameList');
-    const cartList = document.getElementById('cart');
-    const totalPriceEl = document.getElementById('totalPrice');
-    const searchInput = document.getElementById('search');
+    const deviceSelect = document.getElementById("deviceSelect");
+    const gameList = document.getElementById("gameList");
+    const cartList = document.getElementById("cart");
+    const totalPriceEl = document.getElementById("totalPrice");
+    const searchInput = document.getElementById("search");
 
-    // Sepet güncelle
     function updateCart() {
-      cartList.innerHTML = '';
+      cartList.innerHTML = "";
       let total = 0;
-      cart.forEach(g => {
-        const li = document.createElement('li');
-        const btn = document.createElement('button');
-        btn.textContent = 'Çıkar';
+      cart.forEach((g) => {
+        const li = document.createElement("li");
+        li.textContent = ${g.name} - ${g.price} TL;
+        const btn = document.createElement("button");
+        btn.textContent = "Çıkar";
         btn.onclick = () => {
-          cart = cart.filter(item => item.code !== g.code);
+          cart = cart.filter((item) => item.code !== g.code);
           updateCart();
         };
         li.appendChild(btn);
@@ -68,39 +56,42 @@
       totalPriceEl.textContent = total;
     }
 
-    // Oyunları listele
     function renderGames() {
-      gameList.innerHTML = '';
+      gameList.innerHTML = "";
       const search = searchInput.value.toLowerCase();
       const selectedDevice = deviceSelect.value;
-      games.filter(g => g.device === selectedDevice && g.name.toLowerCase().includes(search))
-           .forEach(g => {
-        const div = document.createElement('div');
-        div.className = 'game';
-        div.innerHTML = `
-          <h3>${g.name}</h3>
-          <img src="${g.image}" alt="${g.name}" width="200"/>
-          <iframe width="300" height="170" src="${g.video.replace("watch?v=", "embed/")}" frameborder="0" allowfullscreen></iframe>
-          <p>${g.price} TL</p>
-        `;
-        const btn = document.createElement('button');
-        btn.textContent = 'Sepete Ekle';
-        btn.onclick = () => {
-          if (!cart.some(item => item.code === g.code)) {
-            cart.push(g);
-            updateCart();
-          }
-        };
-        div.appendChild(btn);
-        gameList.appendChild(div);
-      });
+      games
+        .filter(
+          (g) =>
+            g.device === selectedDevice &&
+            g.name.toLowerCase().includes(search)
+        )
+        .forEach((g) => {
+          const div = document.createElement("div");
+          div.className = "game";
+          div.innerHTML = `
+            <h3>${g.name}</h3>
+            <img src="${g.image}" alt="${g.name}" />
+            <iframe src="${g.video.replace("watch?v=", "embed/")}" frameborder="0" allowfullscreen></iframe>
+            <p>${g.price} TL</p>
+          `;
+          const btn = document.createElement("button");
+          btn.textContent = "Sepete Ekle";
+          btn.onclick = () => {
+            if (!cart.some((item) => item.code === g.code)) {
+              cart.push(g);
+              updateCart();
+            }
+          };
+          div.appendChild(btn);
+          gameList.appendChild(div);
+        });
     }
 
-    // Firebase verileri çek
-    firebase.database().ref('devices').on('value', snap => {
-      deviceSelect.innerHTML = '';
-      snap.forEach(child => {
-        const opt = document.createElement('option');
+    firebase.database().ref("devices").on("value", (snap) => {
+      deviceSelect.innerHTML = "";
+      snap.forEach((child) => {
+        const opt = document.createElement("option");
         opt.value = child.key;
         opt.textContent = child.key;
         deviceSelect.appendChild(opt);
@@ -108,23 +99,23 @@
       renderGames();
     });
 
-    firebase.database().ref('games').on('value', snap => {
+    firebase.database().ref("games").on("value", (snap) => {
       games = [];
-      snap.forEach(child => {
+      snap.forEach((child) => {
         games.push(child.val());
       });
       renderGames();
     });
 
-    searchInput.addEventListener('input', renderGames);
-    deviceSelect.addEventListener('change', renderGames);
+    searchInput.addEventListener("input", renderGames);
+    deviceSelect.addEventListener("change", renderGames);
 
-    // WhatsApp sipariş
-    document.getElementById('buy').onclick = () => {
-      const address = document.getElementById('address').value;
-      const message = Sipariş Listesi:%0A${cart.map(g => g.name + ' - ' + g.price + ' TL').join('%0A')}%0AToplam: ${totalPriceEl.textContent} TL%0AKargo Adresi: ${address};
-      window.open(https://wa.me/905548801010?text=${message}, '_blank');
+    document.getElementById("buy").onclick = () => {
+      const address = document.getElementById("address").value;
+      const message = `Sipariş Listesi:%0A${cart
+        .map((g) => ${g.name} - ${g.price} TL)
+        .join("%0A")}%0AToplam: ${totalPriceEl.textContent} TL%0AKargo Adresi: ${address}`;
+      window.open(https://wa.me/905548801010?text=${message}, "_blank");
     };
-  </script>
-</body>
+  </script></body>
 </html>
