@@ -44,6 +44,14 @@
     <h2>Oyun Kataloğu</h2>
     <input type="text" id="searchBox" oninput="filterGames()" placeholder="Oyun ara...">
     <div class="catalog" id="gameCatalog"></div>
+    <h2>Favorilerim</h2>
+    <div class="catalog" id="favCatalog"></div>
+    <h2>Sepetim</h2>
+    <div id="cartList"></div>
+    <p id="totalPrice">Toplam: 0 TL</p>
+    <button onclick="sendCartViaWhatsApp()">WhatsApp ile Gönder</button>
+  </div>
+    
   <script>
     const firebaseConfig = {
   apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
