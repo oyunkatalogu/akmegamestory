@@ -213,20 +213,7 @@
           }
         })
       );
-      Promise.all(promises).then(() => {
-        const username = localStorage.getItem("user") || "Bilinmeyen Kullanıcı";
-        message += `\nToplam: ${total.toFixed(2)} TL\nKullanıcı: ${username}`;
-        const url = "https://wa.me/905548801010?text=" + encodeURIComponent(message);
-        window.open(url, "_blank");
-      });
-    function filterGames() {
-      const term = document.getElementById("searchBox").value.toLowerCase();
-      const cards = document.querySelectorAll("#gameCatalog .game-card");
-      cards.forEach(card => {
-        const name = card.querySelector("h3").textContent.toLowerCase();
-        card.style.display = name.includes(term) ? "block" : "none";
-      });
-    function showLogin() {
+      function showLogin() {
       document.getElementById('welcome').classList.add('hidden');
       document.getElementById('loginBox').classList.remove('hidden');
     }
