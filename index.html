@@ -35,7 +35,8 @@
     <button onclick="loginUser()">Giriş Yap</button>
     <button onclick="resetPassword()">Parolamı Unuttum</button>
     <button onclick="goHome()">Geri</button>
-  </div>  <div id="mainPage" class="container hidden">
+  </div>  
+  <div id="mainPage" class="container hidden">
     <h2>Hoşgeldiniz, <span id="welcomeUser"></span></h2>
     <select id="mainDevice">
       <option value="">Cihaz Seçin</option>
@@ -43,7 +44,12 @@
     <select id="subModel">
       <option value="">Model Seçin</option>
     </select>
-  </div>  <script>
+  </div>
+  <div id="catalogSection" style="display:none;">
+    <h2>Oyun Kataloğu</h2>
+    <input type="text" id="searchBox" oninput="filterGames()" placeholder="Oyun ara...">
+    <div class="catalog" id="gameCatalog"></div>
+  <script>
     const firebaseConfig = {
   apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
   authDomain: "akmegamestore-66522.firebaseapp.com",
