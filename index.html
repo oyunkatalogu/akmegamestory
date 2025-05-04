@@ -1,66 +1,62 @@
-<!DOCTYPE html><html lang="tr">
+<!DOCTYPE html>
+<html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>AkmeGameStore</title>
+  <meta charset="UTF-8" />
+  <title>AkMegaStore</title>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
-    body { font-family: Arial; background: #1e1e2f; color: #fff; text-align: center; margin: 0; padding: 0; }
-    .container { max-width: 400px; margin: 50px auto; background: #2e2e3f; padding: 20px; border-radius: 10px; }
-    input, button { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
-    button { background: #4CAF50; color: white; cursor: pointer; }
-    .hidden { display: none; }
+    body { font-family: Arial; padding: 20px; background: #f5f5f5; }
+    .game-card {
+      width: 200px;
+      background: white;
+      border-radius: 10px;
+      padding: 10px;
+      margin: 10px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    }
+    .catalog { display: flex; flex-wrap: wrap; justify-content: center; }
+    input, button { padding: 8px; margin: 5px 0; width: 100%; max-width: 300px; }
+    h2 { margin-top: 40px; }
   </style>
 </head>
 <body>
-  <div id="welcome" class="container">
-    <h2>AkmeGameStore</h2>
-    <button onclick="showLogin()">Giriş Yap</button>
-    <button onclick="showRegister()">Kayıt Ol</button>
-  </div>  <div id="registerBox" class="container hidden">
+  <div id="authSection">
     <h2>Kayıt Ol</h2>
-    <input type="email" id="regEmail" placeholder="E-posta">
-    <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
-    <input type="tel" id="regPhone" placeholder="Telefon Numarası">
-    <input type="password" id="regPassword" placeholder="Parola">
-    <input type="password" id="regConfirmPassword" placeholder="Parola (Tekrar)">
-    <button onclick="registerUser()">Kayıt Ol</button>
-    <button onclick="goHome()">Geri</button>
-  </div>  <div id="loginBox" class="container hidden">
+    <input type="text" id="regUsername" placeholder="Kullanıcı adı">
+    <input type="password" id="regPassword" placeholder="Şifre">
+    <button onclick="register()">Kayıt Ol</button>
+    <hr>
     <h2>Giriş Yap</h2>
-    <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
-    <input type="password" id="loginPassword" placeholder="Parola">
-    <button onclick="loginUser()">Giriş Yap</button>
-    <button onclick="resetPassword()">Parolamı Unuttum</button>
-    <button onclick="goHome()">Geri</button>
-  </div>  
-  <div id="mainPage" class="container hidden">
-    <h2>Hoşgeldiniz, <span id="welcomeUser"></span></h2>
-    <select id="mainDevice">
+    <input type="text" id="username" placeholder="Kullanıcı adı">
+    <input type="password" id="password" placeholder="Şifre">
+    <button onclick="login()">Giriş</button>
   </div>
+
   <div id="catalogSection" style="display:none;">
     <h2>Oyun Kataloğu</h2>
     <input type="text" id="searchBox" oninput="filterGames()" placeholder="Oyun ara...">
     <div class="catalog" id="gameCatalog"></div>
+
     <h2>Favorilerim</h2>
     <div class="catalog" id="favCatalog"></div>
+
     <h2>Sepetim</h2>
     <div id="cartList"></div>
     <p id="totalPrice">Toplam: 0 TL</p>
     <button onclick="sendCartViaWhatsApp()">WhatsApp ile Gönder</button>
   </div>
-    
+
   <script>
     const firebaseConfig = {
-  apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
-  authDomain: "akmegamestore-66522.firebaseapp.com",
-  databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "akmegamestore-66522",
-  storageBucket: "akmegamestore-66522.firebasestorage.app",
-  messagingSenderId: "89303927223",
-  appId: "1:89303927223:web:c1b6bc1231e191a5920032"
-};
+      apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
+      authDomain: "akmegamestore-66522.firebaseapp.com",
+      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "akmegamestore-66522",
+      storageBucket: "akmegamestore-66522.firebasestorage.app",
+      messagingSenderId: "89303927223",
+      appId: "1:89303927223:web:c1b6bc1231e191a5920032"
+    };
     firebase.initializeApp(firebaseConfig);
 
     function toEmbedURL(url) {
@@ -86,7 +82,8 @@
         alert("Kayıt başarılı!");
       }
     }
-     function login() {
+
+    function login() {
       const user = document.getElementById("username").value;
       const pass = document.getElementById("password").value;
       if (localStorage.getItem("pass_" + user) === pass) {
@@ -99,6 +96,7 @@
         alert("Giriş bilgileri hatalı.");
       }
     }
+
     function getCart() {
       return JSON.parse(localStorage.getItem("cart") || "[]");
     }
@@ -116,6 +114,7 @@
         alert("Sepete eklendi!");
       }
     }
+
     function removeFromCart(code) {
       let cart = getCart().filter(c => c !== code);
       localStorage.setItem("cart", JSON.stringify(cart));
@@ -140,6 +139,7 @@
         el.style.display = el.style.display === "none" ? "block" : "none";
       }
     }
+
     function loadGames() {
       firebase.database().ref("games").once("value").then(snapshot => {
         const container = document.getElementById("gameCatalog");
@@ -171,6 +171,7 @@
         });
       });
     }
+
     function renderCart() {
       const cart = getCart();
       if (cart.length === 0) {
@@ -213,107 +214,23 @@
           }
         })
       );
-      function showLogin() {
-      document.getElementById('welcome').classList.add('hidden');
-      document.getElementById('loginBox').classList.remove('hidden');
-    }
 
-    function showRegister() {
-      document.getElementById('welcome').classList.add('hidden');
-      document.getElementById('registerBox').classList.remove('hidden');
-    }
-
-    function goHome() {
-      document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
-      document.getElementById('welcome').classList.remove('hidden');
-    }
-
-    function registerUser() {
-      const email = document.getElementById("regEmail").value.trim();
-      const username = document.getElementById("regUsername").value.trim();
-      const phone = document.getElementById("regPhone").value.trim();
-      const password = document.getElementById("regPassword").value;
-      const confirmPassword = document.getElementById("regConfirmPassword").value;
-
-      if (password !== confirmPassword) return alert("Parolalar eşleşmiyor!");
-
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          const user = userCredential.user;
-          firebase.database().ref("users/" + user.uid).set({ email, username, phone });
-          alert("Kayıt başarılı! Lütfen e-postanızı doğrulayın.");
-          user.sendEmailVerification();
-        })
-        .catch(error => {
-          if (error.code === 'auth/email-already-in-use') {
-            alert("Bu e-posta zaten kayıtlı. Giriş yapın veya parolanızı sıfırlayın.");
-          } else {
-            alert("Hata: " + error.message);
-          }
-        });
-    }
-
-    async function loginUser() {
-      const username = document.getElementById("loginUsername").value.trim();
-      const password = document.getElementById("loginPassword").value;
-
-      const snap = await firebase.database().ref("users").orderByChild("username").equalTo(username).once("value");
-      if (snap.exists()) {
-        const userObj = Object.entries(snap.val())[0];
-        const user = userObj[1];
-        firebase.auth().signInWithEmailAndPassword(user.email, password)
-          .then(() => {
-            document.getElementById("loginBox").classList.add("hidden");
-            document.getElementById("mainPage").classList.remove("hidden");
-            document.getElementById("welcomeUser").textContent = username;
-            loadDevices();
-          })
-          .catch(() => alert("Parola yanlış."));
-      } else {
-        alert("Kullanıcı bulunamadı");
-      }
-    }
-
-    function resetPassword() {
-      const username = document.getElementById("loginUsername").value.trim();
-      if (!username) return alert("Kullanıcı adınızı girin.");
-
-      firebase.database().ref("users").orderByChild("username").equalTo(username).once("value")
-        .then(snapshot => {
-          if (snapshot.exists()) {
-            const user = Object.values(snapshot.val())[0];
-            firebase.auth().sendPasswordResetEmail(user.email);
-            alert("Parola sıfırlama bağlantısı e-posta adresinize gönderildi.");
-          } else {
-            alert("Kullanıcı bulunamadı");
-          }
-        });
-    }
-
-    function loadDevices() {
-      const mainDevice = document.getElementById("mainDevice");
-      firebase.database().ref("devices").once("value", snapshot => {
-        mainDevice.innerHTML = '<option value="">Cihaz Seçin</option>';
-        snapshot.forEach(child => {
-          let opt = document.createElement("option");
-          opt.value = child.key;
-          opt.textContent = child.key;
-          mainDevice.appendChild(opt);
-        });
-      });
-
-      document.getElementById("mainDevice").addEventListener("change", e => {
-        const subModel = document.getElementById("subModel");
-        subModel.innerHTML = '<option value="">Model Seçin</option>';
-        firebase.database().ref("devices/" + e.target.value + "/models").once("value", snap => {
-          snap.forEach(model => {
-            let opt = document.createElement("option");
-            opt.value = model.key;
-            opt.textContent = model.key;
-            subModel.appendChild(opt);
-          });
-        });
+      Promise.all(promises).then(() => {
+        const username = localStorage.getItem("user") || "Bilinmeyen Kullanıcı";
+        message += `\nToplam: ${total.toFixed(2)} TL\nKullanıcı: ${username}`;
+        const url = "https://wa.me/905548801010?text=" + encodeURIComponent(message);
+        window.open(url, "_blank");
       });
     }
-  </script></body>
+
+    function filterGames() {
+      const term = document.getElementById("searchBox").value.toLowerCase();
+      const cards = document.querySelectorAll("#gameCatalog .game-card");
+      cards.forEach(card => {
+        const name = card.querySelector("h3").textContent.toLowerCase();
+        card.style.display = name.includes(term) ? "block" : "none";
+      });
+    }
+  </script>
+</body>
 </html>
