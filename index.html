@@ -1,135 +1,88 @@
-<!DOCTYPE html>
-<html lang="tr">
+<!DOCTYPE html><html lang="tr">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>akmegamestore</title>
+  <title>akmegamestore - Giriş</title>
   <link rel="stylesheet" href="style.css">
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
-  <h1>akmegamestore</h1>
+  <h1>Akme Game Store Giriş</h1>  <div id="authSection">
+    <div id="register">
+      <h2>Kayıt Ol</h2>
+      <input type="email" id="regEmail" placeholder="Email">
+      <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
+      <input type="text" id="regPhone" placeholder="Telefon Numarası">
+      <input type="password" id="regPassword" placeholder="Parola">
+      <input type="password" id="regPassword2" placeholder="Parola Tekrar">
+      <button onclick="register()">Kayıt Ol</button>
+    </div><div id="login">
+  <h2>Giriş Yap</h2>
+  <input type="email" id="loginEmail" placeholder="Email">
+  <input type="password" id="loginPassword" placeholder="Parola">
+  <button onclick="login()">Giriş Yap</button>
+</div>
 
-  <input type="text" id="search" placeholder="Oyun ara...">
-  <label for="deviceSelect">Cihaz Seç:</label>
-  <select id="deviceSelect">
-    <option>Yükleniyor...</option>
-  </select>
-
-  <div id="gameList"></div>
-
-  <h2>Sepet</h2>
-  <ul id="cart"></ul>
-  <p>Toplam Fiyat: <span id="totalPrice">0</span> TL</p>
-  <input type="text" id="address" placeholder="Kargo adresinizi girin">
-  <button id="buy">WhatsApp'tan Sipariş Ver</button>
-
-  <script type="module">
-  // Import the functions you need from the SDKs you need
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-  // TODO: Add SDKs for Firebase products that you want to use
-  // https://firebase.google.com/docs/web/setup#available-libraries
-
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
-    authDomain: "akmegamestore-66522.firebaseapp.com",
-    databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "akmegamestore-66522",
-    storageBucket: "akmegamestore-66522.firebasestorage.app",
-    messagingSenderId: "89303927223",
-    appId: "1:89303927223:web:c1b6bc1231e191a5920032"
-  };
-
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-
+  </div>  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBb1dqb3SqYpkEtB3Wnt8LSVc41tSGETe4",
+      authDomain: "akmegamestore-66522.firebaseapp.com",
+      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "akmegamestore-66522",
+      storageBucket: "akmegamestore-66522.appspot.com",
+      messagingSenderId: "893039272243",
+      appId: "1:893039272243:web:c1b862e113b1e1a9528023"
+    };
 
     firebase.initializeApp(firebaseConfig);
 
-    let games = [], cart = [];
+    function register() {
+      const email = document.getElementById('regEmail').value;
+      const username = document.getElementById('regUsername').value;
+      const phone = document.getElementById('regPhone').value;
+      const password = document.getElementById('regPassword').value;
+      const password2 = document.getElementById('regPassword2').value;
 
-    const deviceSelect = document.getElementById('deviceSelect');
-    const gameList = document.getElementById('gameList');
-    const cartList = document.getElementById('cart');
-    const totalPriceEl = document.getElementById('totalPrice');
-    const searchInput = document.getElementById('search');
+      if (password !== password2) {
+        alert("Parolalar uyuşmuyor!");
+        return;
+      }
 
-    function updateCart() {
-      cartList.innerHTML = '';
-      let total = 0;
-      cart.forEach(g => {
-        const li = document.createElement('li');
-        li.textContent = ${g.name} - ${g.price} TL;
-        const btn = document.createElement('button');
-        btn.textContent = 'Çıkar';
-        btn.onclick = () => {
-          cart = cart.filter(item => item.code !== g.code);
-          updateCart();
-        };
-        li.appendChild(btn);
-        cartList.appendChild(li);
-        total += parseFloat(g.price);
-      });
-      totalPriceEl.textContent = total;
+      firebase.auth().createUserWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+
+          firebase.database().ref('users/' + user.uid).set({
+            email: email,
+            username: username,
+            phone: phone
+          });
+
+          user.sendEmailVerification()
+            .then(() => {
+              alert("Lütfen e-posta adresinizi doğrulayın.");
+            });
+        })
+        .catch(error => alert(error.message));
     }
 
-    function renderGames() {
-      gameList.innerHTML = '';
-      const search = searchInput.value.toLowerCase();
-      const selectedDevice = deviceSelect.value;
-      games
-        .filter(g => g.device === selectedDevice && g.name.toLowerCase().includes(search))
-        .forEach(g => {
-          const div = document.createElement('div');
-          div.className = 'game';
-          div.innerHTML = `
-            <h3>${g.name}</h3>
-            <img src="${g.image}" alt="${g.name}" />
-            <iframe width="100%" height="200" src="${g.video.replace("watch?v=", "embed/")}" frameborder="0" allowfullscreen></iframe>
-            <p>${g.price} TL</p>
-          `;
-          const btn = document.createElement('button');
-          btn.textContent = 'Sepete Ekle';
-          btn.onclick = () => {
-            if (!cart.some(item => item.code === g.code)) {
-              cart.push(g);
-              updateCart();
-            }
-          };
-          div.appendChild(btn);
-          gameList.appendChild(div);
-        });
+    function login() {
+      const email = document.getElementById('loginEmail').value;
+      const password = document.getElementById('loginPassword').value;
+
+      firebase.auth().signInWithEmailAndPassword(email, password)
+        .then(userCredential => {
+          const user = userCredential.user;
+          if (user.emailVerified) {
+            alert("Giriş başarılı.");
+            window.location.href = "index.html";
+          } else {
+            alert("Lütfen e-posta adresinizi doğrulayın.");
+          }
+        })
+        .catch(error => alert(error.message));
     }
-
-    firebase.database().ref('devices').on('value', snap => {
-      deviceSelect.innerHTML = '';
-      snap.forEach(child => {
-        const opt = document.createElement('option');
-        opt.value = child.key;
-        opt.textContent = child.key;
-        deviceSelect.appendChild(opt);
-      });
-      renderGames();
-    });
-
-    firebase.database().ref('games').on('value', snap => {
-      games = [];
-      snap.forEach(child => {
-        games.push(child.val());
-      });
-      renderGames();
-    });
-
-    searchInput.addEventListener('input', renderGames);
-    deviceSelect.addEventListener('change', renderGames);
-
-    document.getElementById('buy').onclick = () => {
-      const address = document.getElementById('address').value;
-      const message = Sipariş Listesi:%0A${cart.map(g => g.name + ' - ' + g.price + ' TL').join('%0A')}%0AToplam: ${totalPriceEl.textContent} TL%0AKargo Adresi: ${address};
-      window.open(https://wa.me/905548801010?text=${message}, '_blank');
-    };
-  </script>
-</body>
+  </script></body>
 </html>
