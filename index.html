@@ -4,13 +4,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>AkMegaStore</title>
   <link rel="stylesheet" href="style.css">
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script defer src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
   <div id="welcomeScreen">
-    <h1>AkMegaStore</h1>
+    <h1>AkmeGameStore</h1>
     <button onclick="showRegister()">Kayıt Ol</button>
     <button onclick="showLogin()">Giriş Yap</button>
   </div>  <div id="registerScreen" class="hidden">
@@ -52,7 +52,8 @@
 <button onclick="sendOrder()">WhatsApp’tan Sipariş Ver</button>
 
   </div>  <script>
-    const firebaseConfig = {
+    document.addEventListener('DOMContentLoaded', () => {
+      const firebaseConfig = {
   apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
   authDomain: "akmegamestore-66522.firebaseapp.com",
   databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
@@ -61,144 +62,145 @@
   messagingSenderId: "89303927223",
   appId: "1:89303927223:web:c1b6bc1231e191a5920032"
 };
-    firebase.initializeApp(firebaseConfig);
+      firebase.initializeApp(firebaseConfig);
 
-    let cart = [];
+      let cart = [];
 
-    const showWelcome = () => {
-      hideAll();
-      document.getElementById("welcomeScreen").classList.remove("hidden");
-    };
-
-    const showRegister = () => {
-      hideAll();
-      document.getElementById("registerScreen").classList.remove("hidden");
-    };
-
-    const showLogin = () => {
-      hideAll();
-      document.getElementById("loginScreen").classList.remove("hidden");
-    };
-
-    const showMain = (username) => {
-      hideAll();
-      document.getElementById("usernameDisplay").textContent = username;
-      document.getElementById("mainScreen").classList.remove("hidden");
-    };
-
-    const hideAll = () => {
-      document.querySelectorAll(".hidden, #welcomeScreen, #registerScreen, #loginScreen, #mainScreen").forEach(el => el.classList.add("hidden"));
-    };
-
-    const register = async () => {
-      const email = regEmail.value;
-      const username = regUsername.value;
-      const phone = regPhone.value;
-      const pass1 = regPassword.value;
-      const pass2 = regPassword2.value;
-      if (pass1 !== pass2) return alert("Parolalar eşleşmiyor");
-      try {
-        const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pass1);
-        await firebase.database().ref("users/" + username).set({ email, phone, uid: userCredential.user.uid });
-        await userCredential.user.sendEmailVerification();
-        alert("Kayıt başarılı. Lütfen e-postanızı doğrulayın.");
-        showLogin();
-      } catch (e) {
-        alert("Hata: " + e.message);
-      }
-    };
-
-    const login = async () => {
-      const username = loginUsername.value;
-      const password = loginPassword.value;
-      const snapshot = await firebase.database().ref("users/" + username).once("value");
-      const user = snapshot.val();
-      if (!user) return alert("Kullanıcı bulunamadı");
-      try {
-        const loginUser = await firebase.auth().signInWithEmailAndPassword(user.email, password);
-        if (!loginUser.user.emailVerified) return alert("Lütfen e-postanızı doğrulayın.");
-        showMain(username);
-      } catch (e) {
-        alert("Giriş başarısız: " + e.message);
-      }
-    };
-
-    const resetPassword = async () => {
-      const username = loginUsername.value;
-      const snapshot = await firebase.database().ref("users/" + username).once("value");
-      const user = snapshot.val();
-      if (!user) return alert("Kullanıcı bulunamadı");
-      await firebase.auth().sendPasswordResetEmail(user.email);
-      alert("Parola sıfırlama bağlantısı e-posta adresinize gönderildi.");
-    };
-
-    const loadModels = () => {
-      const platform = platformSelect.value;
-      const modelSelect = document.getElementById("modelSelect");
-      modelSelect.innerHTML = '<option>Model Seç</option>';
-      const models = {
-        PlayStation: ["PlayStation 1", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation 5"],
-        XBox: ["XBOX Serileri"],
-        Bilgisayar: ["Bilgisayar"],
-        Sega: [],
-        Nintendo: [],
-        Atari: []
+      window.showWelcome = () => {
+        hideAll();
+        document.getElementById("welcomeScreen").classList.remove("hidden");
       };
-      if (models[platform]) {
-        models[platform].forEach(m => {
-          const opt = document.createElement("option");
-          opt.value = m;
-          opt.textContent = m;
-          modelSelect.appendChild(opt);
-        });
+
+      window.showRegister = () => {
+        hideAll();
+        document.getElementById("registerScreen").classList.remove("hidden");
+      };
+
+      window.showLogin = () => {
+        hideAll();
+        document.getElementById("loginScreen").classList.remove("hidden");
+      };
+
+      window.showMain = (username) => {
+        hideAll();
+        document.getElementById("usernameDisplay").textContent = username;
+        document.getElementById("mainScreen").classList.remove("hidden");
+      };
+
+      function hideAll() {
+        document.querySelectorAll("#welcomeScreen, #registerScreen, #loginScreen, #mainScreen").forEach(el => el.classList.add("hidden"));
       }
-    };
 
-    const loadGames = () => {
-      const platform = platformSelect.value;
-      const model = modelSelect.value;
-      const gameList = document.getElementById("gameList");
-      gameList.innerHTML = '';
-      if (!platform || !model) return;
-      firebase.database().ref("games").orderByChild("device").equalTo(platform).once("value", snap => {
-        snap.forEach(child => {
-          const game = child.val();
-          if (game.model === model) {
-            const div = document.createElement("div");
-            div.innerHTML = <strong>${game.name}</strong> - ${game.price} TL <button onclick='addToCart("${game.name}", ${game.price})'>Sepete Ekle</button>;
-            gameList.appendChild(div);
-          }
+      window.register = async () => {
+        const email = regEmail.value;
+        const username = regUsername.value;
+        const phone = regPhone.value;
+        const pass1 = regPassword.value;
+        const pass2 = regPassword2.value;
+        if (pass1 !== pass2) return alert("Parolalar eşleşmiyor");
+        try {
+          const userCredential = await firebase.auth().createUserWithEmailAndPassword(email, pass1);
+          await firebase.database().ref("users/" + username).set({ email, phone, uid: userCredential.user.uid });
+          await userCredential.user.sendEmailVerification();
+          alert("Kayıt başarılı. Lütfen e-postanızı doğrulayın.");
+          showLogin();
+        } catch (e) {
+          alert("Hata: " + e.message);
+        }
+      };
+
+      window.login = async () => {
+        const username = loginUsername.value;
+        const password = loginPassword.value;
+        const snapshot = await firebase.database().ref("users/" + username).once("value");
+        const user = snapshot.val();
+        if (!user) return alert("Kullanıcı bulunamadı");
+        try {
+          const loginUser = await firebase.auth().signInWithEmailAndPassword(user.email, password);
+          if (!loginUser.user.emailVerified) return alert("Lütfen e-postanızı doğrulayın.");
+          showMain(username);
+        } catch (e) {
+          alert("Giriş başarısız: " + e.message);
+        }
+      };
+
+      window.resetPassword = async () => {
+        const username = loginUsername.value;
+        const snapshot = await firebase.database().ref("users/" + username).once("value");
+        const user = snapshot.val();
+        if (!user) return alert("Kullanıcı bulunamadı");
+        await firebase.auth().sendPasswordResetEmail(user.email);
+        alert("Parola sıfırlama bağlantısı e-posta adresinize gönderildi.");
+      };
+
+      window.loadModels = () => {
+        const platform = platformSelect.value;
+        const modelSelect = document.getElementById("modelSelect");
+        modelSelect.innerHTML = '<option>Model Seç</option>';
+        const models = {
+          PlayStation: ["PlayStation 1", "PlayStation 2", "PlayStation 3", "PlayStation 4", "PlayStation 5"],
+          XBox: ["XBOX Serileri"],
+          Bilgisayar: ["Bilgisayar"],
+          Sega: [],
+          Nintendo: [],
+          Atari: []
+        };
+        if (models[platform]) {
+          models[platform].forEach(m => {
+            const opt = document.createElement("option");
+            opt.value = m;
+            opt.textContent = m;
+            modelSelect.appendChild(opt);
+          });
+        }
+      };
+
+      window.loadGames = () => {
+        const platform = platformSelect.value;
+        const model = modelSelect.value;
+        const gameList = document.getElementById("gameList");
+        gameList.innerHTML = '';
+        if (!platform || !model) return;
+        firebase.database().ref("games").orderByChild("device").equalTo(platform).once("value", snap => {
+          snap.forEach(child => {
+            const game = child.val();
+            if (game.model === model) {
+              const div = document.createElement("div");
+              div.innerHTML = <strong>${game.name}</strong> - ${game.price} TL <button onclick='addToCart("${game.name}", ${game.price})'>Sepete Ekle</button>;
+              gameList.appendChild(div);
+            }
+          });
         });
-      });
-    };
+      };
 
-    function addToCart(name, price) {
-      cart.push({ name, price });
-      updateCart();
-    }
+      window.addToCart = (name, price) => {
+        cart.push({ name, price });
+        updateCart();
+      };
 
-    function updateCart() {
-      const cartList = document.getElementById("cartList");
-      const totalPriceEl = document.getElementById("totalPrice");
-      cartList.innerHTML = '';
-      let total = 0;
-      cart.forEach(item => {
-        const li = document.createElement("li");
-        li.textContent = ${item.name} - ${item.price} TL;
-        cartList.appendChild(li);
-        total += parseFloat(item.price);
-      });
-      totalPriceEl.textContent = total.toFixed(2);
-    }
+      function updateCart() {
+        const cartList = document.getElementById("cartList");
+        const totalPriceEl = document.getElementById("totalPrice");
+        cartList.innerHTML = '';
+        let total = 0;
+        cart.forEach(item => {
+          const li = document.createElement("li");
+          li.textContent = ${item.name} - ${item.price} TL;
+          cartList.appendChild(li);
+          total += parseFloat(item.price);
+        });
+        totalPriceEl.textContent = total.toFixed(2);
+      }
 
-    function sendOrder() {
-      if (cart.length === 0) return alert("Sepet boş!");
-      let message = "Sipariş Listesi:%0A" + cart.map(i => ${i.name} - ${i.price} TL).join('%0A');
-      message += %0AToplam: ${document.getElementById("totalPrice").textContent} TL;
-      window.open(https://wa.me/905548801010?text=${message}, '_blank');
-    }
+      window.sendOrder = () => {
+        if (cart.length === 0) return alert("Sepet boş!");
+        let message = "Sipariş Listesi:%0A" + cart.map(i => ${i.name} - ${i.price} TL).join('%0A');
+        message += %0AToplam: ${document.getElementById("totalPrice").textContent} TL;
+        window.open(https://wa.me/905548801010?text=${message}, '_blank');
+      };
 
-    showWelcome();
+      showWelcome();
+    });
   </script>  <style>
     .hidden { display: none; }
     input, button, select { display: block; margin: 8px auto; padding: 10px; width: 90%; max-width: 400px; }
