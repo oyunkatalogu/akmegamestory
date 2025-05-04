@@ -18,17 +18,27 @@
   </style>
 </head>
 <body>
-  <div id="authSection">
+  <div id="welcome" class="container">
+    <h2>AkmeGameStore</h2>
+    <button onclick="showLogin()">Giriş Yap</button>
+    <button onclick="showRegister()">Kayıt Ol</button>
+  </div>  <div id="registerBox" class="container hidden">
     <h2>Kayıt Ol</h2>
-    <input type="text" id="regUsername" placeholder="Kullanıcı adı">
-    <input type="password" id="regPassword" placeholder="Şifre">
-    <button onclick="register()">Kayıt Ol</button>
-    <hr>
+    <input type="email" id="regEmail" placeholder="E-posta">
+    <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
+    <input type="tel" id="regPhone" placeholder="Telefon Numarası">
+    <input type="password" id="regPassword" placeholder="Parola">
+    <input type="password" id="regConfirmPassword" placeholder="Parola (Tekrar)">
+    <button onclick="registerUser()">Kayıt Ol</button>
+    <button onclick="goHome()">Geri</button>
+  </div>  <div id="loginBox" class="container hidden">
     <h2>Giriş Yap</h2>
-    <input type="text" id="username" placeholder="Kullanıcı adı">
-    <input type="password" id="password" placeholder="Şifre">
-    <button onclick="login()">Giriş</button>
-  </div>
+    <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
+    <input type="password" id="loginPassword" placeholder="Parola">
+    <button onclick="loginUser()">Giriş Yap</button>
+    <button onclick="resetPassword()">Parolamı Unuttum</button>
+    <button onclick="goHome()">Geri</button>
+  </div>  
 
   <div id="catalogSection" style="display:none;">
     <h2>Oyun Kataloğu</h2>
