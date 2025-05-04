@@ -1,87 +1,86 @@
 <!DOCTYPE html><html lang="tr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>akmegamestore - Giriş</title>
-  <link rel="stylesheet" href="style.css">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AkMegaStore Giriş</title>
+  <link rel="stylesheet" href="style.css" />
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
 </head>
 <body>
-  <h1>Akme Game Store Giriş</h1>  <div id="authSection">
-    <div id="register">
-      <h2>Kayıt Ol</h2>
-      <input type="email" id="regEmail" placeholder="Email">
-      <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
-      <input type="text" id="regPhone" placeholder="Telefon Numarası">
-      <input type="password" id="regPassword" placeholder="Parola">
-      <input type="password" id="regPassword2" placeholder="Parola Tekrar">
-      <button onclick="register()">Kayıt Ol</button>
-    </div><div id="login">
-  <h2>Giriş Yap</h2>
-  <input type="email" id="loginEmail" placeholder="Email">
-  <input type="password" id="loginPassword" placeholder="Parola">
-  <button onclick="login()">Giriş Yap</button>
-</div>
-
+  <div class="container">
+    <h2>Giriş Yap</h2>
+    <input type="text" id="username" placeholder="Kullanıcı Adı" />
+    <input type="password" id="password" placeholder="Parola" />
+    <button onclick="loginUser()">Giriş Yap</button>
+  </div>  <div id="homepage" class="hidden">
+    <h2>Cihaz Seç</h2>
+    <select id="mainDevice">
+      <option value="">Cihaz Seçin</option>
+    </select>
+    <select id="subModel">
+      <option value="">Model Seçin</option>
+    </select>
   </div>  <script>
     const firebaseConfig = {
-  apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
-  authDomain: "akmegamestore-66522.firebaseapp.com",
-  databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "akmegamestore-66522",
-  storageBucket: "akmegamestore-66522.firebasestorage.app",
-  messagingSenderId: "89303927223",
-  appId: "1:89303927223:web:c1b6bc1231e191a5920032"
-};
+      apiKey: "YOUR_API_KEY",
+      authDomain: "akmegamestore-66522.firebaseapp.com",
+      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "akmegamestore-66522",
+      storageBucket: "akmegamestore-66522.appspot.com",
+      messagingSenderId: "893039272243",
+      appId: "1:893039272243:web:c1b862e113b1e1a9528023"
+    };
     firebase.initializeApp(firebaseConfig);
 
-    function register() {
-      const email = document.getElementById('regEmail').value;
-      const username = document.getElementById('regUsername').value;
-      const phone = document.getElementById('regPhone').value;
-      const password = document.getElementById('regPassword').value;
-      const password2 = document.getElementById('regPassword2').value;
+    async function loginUser() {
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
 
-      if (password !== password2) {
-        alert("Parolalar uyuşmuyor!");
-        return;
+      const snapshot = await firebase.database().ref("users").orderByChild("username").equalTo(username).once("value");
+      if (snapshot.exists()) {
+        let user = Object.values(snapshot.val())[0];
+        if (user.password === password) {
+          document.querySelector(".container").classList.add("hidden");
+          document.getElementById("homepage").classList.remove("hidden");
+          loadDevices();
+        } else {
+          alert("Parola yanlış");
+        }
+      } else {
+        alert("Kullanıcı bulunamadı");
       }
-
-      firebase.auth().createUserWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          const user = userCredential.user;
-
-          firebase.database().ref('users/' + user.uid).set({
-            email: email,
-            username: username,
-            phone: phone
-          });
-
-          user.sendEmailVerification()
-            .then(() => {
-              alert("Lütfen e-posta adresinizi doğrulayın.");
-            });
-        })
-        .catch(error => alert(error.message));
     }
 
-    function login() {
-      const email = document.getElementById('loginEmail').value;
-      const password = document.getElementById('loginPassword').value;
-
-      firebase.auth().signInWithEmailAndPassword(email, password)
-        .then(userCredential => {
-          const user = userCredential.user;
-          if (user.emailVerified) {
-            alert("Giriş başarılı.");
-            window.location.href = "index.html";
-          } else {
-            alert("Lütfen e-posta adresinizi doğrulayın.");
-          }
-        })
-        .catch(error => alert(error.message));
+    function loadDevices() {
+      const mainDevice = document.getElementById("mainDevice");
+      firebase.database().ref("devices").once("value", snapshot => {
+        mainDevice.innerHTML = '<option value="">Cihaz Seçin</option>';
+        snapshot.forEach(child => {
+          let opt = document.createElement("option");
+          opt.value = child.key;
+          opt.textContent = child.key;
+          mainDevice.appendChild(opt);
+        });
+      });
     }
-  </script></body>
+
+    document.getElementById("mainDevice").addEventListener("change", e => {
+      const subModel = document.getElementById("subModel");
+      subModel.innerHTML = '<option value="">Model Seçin</option>';
+      firebase.database().ref("devices/" + e.target.value + "/models").once("value", snap => {
+        snap.forEach(model => {
+          let opt = document.createElement("option");
+          opt.value = model.key;
+          opt.textContent = model.key;
+          subModel.appendChild(opt);
+        });
+      });
+    });
+  </script>  <style>
+    .hidden { display: none; }
+    .container { padding: 20px; max-width: 400px; margin: auto; text-align: center; }
+    input, select, button { display: block; width: 100%; margin: 10px 0; padding: 10px; }
+  </style></body>
 </html>
