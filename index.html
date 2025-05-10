@@ -4,85 +4,73 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Akmetron Giriş</title>
+  <title>Akmetron Giriş ve Katalog</title>
   <style>
     body { margin: 0; font-family: Arial, sans-serif; background: #0f0f1b; color: #fff; }
-    .card, .topbar, .catalog, .hidden { display: none; }
-    .visible { display: block !important; }
-    .card {
-      background: #1a1a2e;
-      padding: 20px;
-      border: 1px solid #0ff;
-      border-radius: 8px;
-      width: 300px;
-      margin: 100px auto;
+    .hidden { display: none !important; }
+    .card, .topbar, .catalog, .center {
+      margin: auto;
       display: flex;
       flex-direction: column;
+      align-items: center;
       gap: 10px;
     }
+    .card {
+      background: #1a1a2e; padding: 20px; border: 1px solid #0ff;
+      border-radius: 10px; width: 300px; margin-top: 50px;
+    }
     input, button {
-      padding: 10px;
-      border: none;
-      border-radius: 5px;
+      padding: 10px; border: none; border-radius: 5px;
+      width: 100%;
     }
     button {
-      background-color: #00f0ff;
-      color: black;
-      cursor: pointer;
+      background-color: #00f0ff; color: black; cursor: pointer;
     }
-    .topbar {
-      display: flex; justify-content: space-between; align-items: center;
-      background: #1a1a2e; padding: 10px 20px; border-bottom: 2px solid #00f0ff;
-    }
-    .topbar .left { display: flex; gap: 15px; }
-    .dropdown { position: relative; display: inline-block; }
-    .dropdown-content {
-      display: none; position: absolute; background-color: #333; min-width: 160px; z-index: 1; border: 1px solid #0ff;
-    }
-    .dropdown-content button {
-      color: #fff; background: none; border: none; padding: 10px; text-align: left; width: 100%; cursor: pointer;
-    }
-    .dropdown:hover .dropdown-content { display: block; }
-    .catalog {
-      padding: 20px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;
-    }
-    .game-card {
-      background: #1e1e2e; border: 1px solid #00f0ff; border-radius: 10px;
-      padding: 10px; width: 220px; text-align: center;
-    }
-    .game-card img { max-width: 100%; border-radius: 5px; }
+    .catalog img { width: 80px; border-radius: 5px; }
   </style>
 </head>
 <body>
 
-<!-- Giriş Kartı -->
-<div id="loginCard" class="card visible">
+<!-- Giriş Formu -->
+<div id="loginCard" class="card">
   <h2>Giriş Yap</h2>
-  <input type="email" id="loginEmail" placeholder="E-posta">
+  <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
   <input type="password" id="loginPassword" placeholder="Şifre">
   <label><input type="checkbox" id="rememberMe"> Beni Hatırla</label>
   <button onclick="login()">Giriş Yap</button>
+  <button onclick="showRegister()">Kayıt Ol</button>
+  <button onclick="showReset()">Şifremi Unuttum</button>
+</div>
+
+<!-- Kayıt Formu -->
+<div id="registerCard" class="card hidden">
+  <h2>Kayıt Ol</h2>
+  <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
+  <input type="text" id="regName" placeholder="Ad">
+  <input type="text" id="regSurname" placeholder="Soyad">
+  <input type="email" id="regEmail" placeholder="Mail Adresi">
+  <input type="password" id="regPassword" placeholder="Parola">
+  <input type="password" id="regConfirm" placeholder="Parola Tekrarı">
+  <button onclick="register()">Gönder</button>
+  <button onclick="showLogin()">Geri</button>
+</div>
+
+<!-- Şifre Sıfırlama -->
+<div id="resetCard" class="card hidden">
+  <h2>Şifre Sıfırla</h2>
+  <input type="email" id="resetEmail" placeholder="Mail Adresi">
+  <button onclick="resetPassword()">Sıfırla</button>
+  <button onclick="showLogin()">Geri</button>
 </div>
 
 <!-- Ana Sayfa -->
-<div id="appArea">
-  <div class="topbar visible">
-    <div class="left">
-      <button onclick="goHome()">Ana Sayfa</button>
-      <div class="dropdown">
-        <button>Platform</button>
-        <div class="dropdown-content" id="platformMenu"></div>
-      </div>
-    </div>
-    <div class="right">Hoşgeldin, <span id="username">...</span></div>
-  </div>
-  <div class="catalog visible" id="catalog"><p>Oyunları görmek için bir platform ve model seçin.</p></div>
-</div>
-
-<!-- Video Modal -->
-<div id="videoModal" style="display:none; position:fixed; top:10%; left:10%; width:80%; height:70%; background:#000; z-index:9999;">
-  <button onclick="closeVideo()" style="position:absolute; top:10px; right:10px; z-index:99999;">Kapat</button>
-  <iframe id="videoFrame" width="100%" height="100%" src="" frameborder="0" allowfullscreen></iframe>
+<div id="mainPage" class="center hidden">
+  <img src="https://i.ibb.co/nQ0Ybng/akmetron.png" width="150">
+  <h2>HOŞGELDİNİZ</h2>
+  <button onclick="loadDevices()">Lütfen Cihaz Seçin</button>
+  <div id="deviceArea"></div>
+  <div id="modelArea"></div>
+  <div id="gamesArea" class="catalog"></div>
 </div>
 
 <!-- Firebase -->
@@ -99,104 +87,111 @@
     messagingSenderId: "89303927223",
     appId: "1:89303927223:web:c1b6bc1231e191a5920032"
   };
-
   firebase.initializeApp(firebaseConfig);
   const auth = firebase.auth();
   const db = firebase.database();
 
+  function showLogin() {
+    document.getElementById("loginCard").classList.remove("hidden");
+    document.getElementById("registerCard").classList.add("hidden");
+    document.getElementById("resetCard").classList.add("hidden");
+  }
+
+  function showRegister() {
+    document.getElementById("loginCard").classList.add("hidden");
+    document.getElementById("registerCard").classList.remove("hidden");
+  }
+
+  function showReset() {
+    document.getElementById("loginCard").classList.add("hidden");
+    document.getElementById("resetCard").classList.remove("hidden");
+  }
+
   function login() {
-    const email = document.getElementById("loginEmail").value;
+    const username = document.getElementById("loginUsername").value;
     const password = document.getElementById("loginPassword").value;
     const remember = document.getElementById("rememberMe").checked;
+    const email = localStorage.getItem(`emailFor_${username}`);
+    if (!email) return alert("E-posta eşleşmesi bulunamadı");
 
     auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION)
       .then(() => auth.signInWithEmailAndPassword(email, password))
       .then(() => {
-        document.getElementById("loginCard").classList.remove("visible");
-        document.querySelector(".topbar").classList.add("visible");
-        document.getElementById("catalog").classList.add("visible");
-        document.getElementById("username").innerText = auth.currentUser.email;
-        loadPlatforms();
+        document.getElementById("loginCard").classList.add("hidden");
+        document.getElementById("mainPage").classList.remove("hidden");
+      }).catch(err => alert(err.message));
+  }
+
+  function register() {
+    const username = document.getElementById("regUsername").value;
+    const email = document.getElementById("regEmail").value;
+    const password = document.getElementById("regPassword").value;
+    const confirm = document.getElementById("regConfirm").value;
+    if (password !== confirm) return alert("Parolalar uyuşmuyor!");
+
+    auth.createUserWithEmailAndPassword(email, password)
+      .then(user => {
+        user.user.sendEmailVerification();
+        localStorage.setItem(`emailFor_${username}`, email);
+        alert("Doğrulama maili gönderildi!");
+        db.ref("kullanicilar/" + username).set({
+          ad: document.getElementById("regName").value,
+          soyad: document.getElementById("regSurname").value,
+          email: email
+        });
+        showLogin();
       })
       .catch(err => alert(err.message));
   }
 
-  function loadPlatforms() {
+  function resetPassword() {
+    const email = document.getElementById("resetEmail").value;
+    auth.sendPasswordResetEmail(email)
+      .then(() => alert("Şifre sıfırlama bağlantısı gönderildi!"))
+      .catch(err => alert(err.message));
+  }
+
+  function loadDevices() {
+    const area = document.getElementById("deviceArea");
+    area.innerHTML = "";
     db.ref("cihazlar").once("value").then(snapshot => {
-      const platformMenu = document.getElementById("platformMenu");
-      platformMenu.innerHTML = "";
       snapshot.forEach(child => {
-        const platform = child.key;
-        let btn = document.createElement("button");
-        btn.textContent = platform;
-        btn.onclick = () => loadModels(platform);
-        platformMenu.appendChild(btn);
+        const btn = document.createElement("button");
+        btn.innerText = child.key;
+        btn.onclick = () => loadModels(child.key);
+        area.appendChild(btn);
       });
     });
   }
 
-  function goHome() {
-    document.getElementById("catalog").innerHTML = "<p>Oyunları görmek için bir platform ve model seçin.</p>";
-  }
-
   function loadModels(platform) {
+    const area = document.getElementById("modelArea");
+    area.innerHTML = "";
     db.ref("cihazlar/" + platform).once("value").then(snapshot => {
-      const catalog = document.getElementById("catalog");
-      catalog.innerHTML = "";
       snapshot.forEach(child => {
-        const model = child.key;
         const btn = document.createElement("button");
-        btn.textContent = model;
-        btn.onclick = () => loadGames(platform, model);
-        catalog.appendChild(btn);
+        btn.innerText = child.key;
+        btn.onclick = () => loadGames(platform, child.key);
+        area.appendChild(btn);
       });
     });
   }
 
   function loadGames(platform, model) {
+    const area = document.getElementById("gamesArea");
+    area.innerHTML = "";
     db.ref("oyunlar/" + platform + "/" + model).once("value").then(snapshot => {
-      const catalog = document.getElementById("catalog");
-      catalog.innerHTML = "";
-      if (!snapshot.exists()) return catalog.innerHTML = "<p>Henüz oyun eklenmedi.</p>";
       snapshot.forEach(child => {
         const game = child.val();
-        const div = document.createElement("div");
-        div.className = "game-card";
-        div.innerHTML = \`
-          <img src="\${game.image}" alt="">
-          <h4>\${game.name}</h4>
-          <button onclick="watchVideo('\${game.video}')">Video İzle</button>
-          <button onclick="addToCart('\${game.name}')">+ Sepete Ekle</button>
-          <button onclick="removeFromCart('\${game.name}')">− Sepetten Çıkar</button>
-          <button onclick="sendWhatsApp('\${game.name}')">WhatsApp'tan Gönder</button>
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.innerHTML = \`
+          <img src="\${game.image}">
+          <p>\${game.name}</p>
         \`;
-        catalog.appendChild(div);
+        area.appendChild(card);
       });
     });
-  }
-
-  function watchVideo(url) {
-    document.getElementById("videoModal").style.display = "block";
-    document.getElementById("videoFrame").src = url;
-  }
-
-  function closeVideo() {
-    document.getElementById("videoModal").style.display = "none";
-    document.getElementById("videoFrame").src = "";
-  }
-
-  function addToCart(game) {
-    alert(game + " sepete eklendi.");
-  }
-
-  function removeFromCart(game) {
-    alert(game + " sepetten çıkarıldı.");
-  }
-
-  function sendWhatsApp(game) {
-    const tel = "+905548801010";
-    const msg = encodeURIComponent("Sipariş etmek istiyorum: " + game);
-    window.open("https://wa.me/" + tel + "?text=" + msg, "_blank");
   }
 </script>
 </body>
