@@ -189,7 +189,7 @@
     });
   }
 </script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js">
+ src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js">
   function goHome() {
     document.getElementById("catalog-container").classList.add("hidden");
     document.getElementById("contact").classList.add("hidden");
@@ -272,7 +272,12 @@
           
   
   document.getElementById("welcome").style.display = "flex";
-  document.getElementById("topbar").classList.remove("hidden");
+  
+  const topbar = document.getElementById("topbar");
+  if (topbar) {
+    topbar.classList.remove("hidden");
+  }
+
 
   const welcomeUsername = document.getElementById("loginUsername").value;
   document.getElementById("welcomeMessage").innerText = "Hoş geldin, " + welcomeUsername + "!";
