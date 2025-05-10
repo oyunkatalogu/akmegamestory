@@ -78,7 +78,7 @@
   </div>
 
   <div id="welcome">
-    <img src="https://i.imgur.com/e6Hau4z.png" width="150">
+    <img src="https://i.ibb.co/nQ0Ybng/akmetron.png" width="150">
     <h2>Giriş Başarılı!</h2>
     <p>Hoş geldin Akmetron kullanıcısı!</p>
   </div>
@@ -128,7 +128,14 @@
           document.getElementById("login-container").classList.add("hidden");
           document.getElementById("welcome").style.display = "flex";
         })
-        .catch(err => alert(err.message));
+        .catch(err => {
+          if (err.code === "auth/email-already-in-use") {
+            alert("Bu e-posta zaten kayıtlı. Lütfen giriş yapınız.");
+            showLogin();
+          } else {
+            alert(err.message);
+          }
+        });
     }
 
     function register() {
@@ -153,14 +160,28 @@
         });
           });
         })
-        .catch(err => alert(err.message));
+        .catch(err => {
+          if (err.code === "auth/email-already-in-use") {
+            alert("Bu e-posta zaten kayıtlı. Lütfen giriş yapınız.");
+            showLogin();
+          } else {
+            alert(err.message);
+          }
+        });
     }
 
     function resetPassword() {
       const email = document.getElementById("resetEmail").value;
       auth.sendPasswordResetEmail(email)
         .then(() => alert("Sıfırlama linki gönderildi."))
-        .catch(err => alert(err.message));
+        .catch(err => {
+          if (err.code === "auth/email-already-in-use") {
+            alert("Bu e-posta zaten kayıtlı. Lütfen giriş yapınız.");
+            showLogin();
+          } else {
+            alert(err.message);
+          }
+        });
     }
   </script>
 </body>
