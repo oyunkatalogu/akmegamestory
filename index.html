@@ -4,28 +4,22 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AKMETRON GİRİŞ</title>
+  <title>Akmetron Giriş</title>
   <style>
-    body {
-      background: #0f0f1b;
-      color: #0ff;
-      font-family: 'Courier New', monospace;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-    }
+    body { margin: 0; font-family: Arial, sans-serif; background: #0f0f1b; color: #fff; }
+    .card, .topbar, .catalog, .hidden { display: none; }
+    .visible { display: block !important; }
     .card {
       background: #1a1a2e;
       padding: 20px;
       border: 1px solid #0ff;
       border-radius: 8px;
       width: 300px;
+      margin: 100px auto;
       display: flex;
       flex-direction: column;
       gap: 10px;
     }
-    .hidden { display: none; }
     input, button {
       padding: 10px;
       border: none;
@@ -36,108 +30,174 @@
       color: black;
       cursor: pointer;
     }
+    .topbar {
+      display: flex; justify-content: space-between; align-items: center;
+      background: #1a1a2e; padding: 10px 20px; border-bottom: 2px solid #00f0ff;
+    }
+    .topbar .left { display: flex; gap: 15px; }
+    .dropdown { position: relative; display: inline-block; }
+    .dropdown-content {
+      display: none; position: absolute; background-color: #333; min-width: 160px; z-index: 1; border: 1px solid #0ff;
+    }
+    .dropdown-content button {
+      color: #fff; background: none; border: none; padding: 10px; text-align: left; width: 100%; cursor: pointer;
+    }
+    .dropdown:hover .dropdown-content { display: block; }
+    .catalog {
+      padding: 20px; display: flex; flex-wrap: wrap; gap: 20px; justify-content: center;
+    }
+    .game-card {
+      background: #1e1e2e; border: 1px solid #00f0ff; border-radius: 10px;
+      padding: 10px; width: 220px; text-align: center;
+    }
+    .game-card img { max-width: 100%; border-radius: 5px; }
   </style>
 </head>
 <body>
 
-  <div id="login-container" class="card">
-    <h2>Giriş Yap</h2>
-    <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
-    <input type="password" id="loginPassword" placeholder="Şifre">
-    <label><input type="checkbox" id="rememberMe"> Beni Hatırla</label>
-    <button onclick="login()">Giriş Yap</button>
-    <button onclick="showRegister()">Kayıt Ol</button>
-    <button onclick="showReset()">Şifremi Unuttum</button>
+<!-- Giriş Kartı -->
+<div id="loginCard" class="card visible">
+  <h2>Giriş Yap</h2>
+  <input type="email" id="loginEmail" placeholder="E-posta">
+  <input type="password" id="loginPassword" placeholder="Şifre">
+  <label><input type="checkbox" id="rememberMe"> Beni Hatırla</label>
+  <button onclick="login()">Giriş Yap</button>
+</div>
+
+<!-- Ana Sayfa -->
+<div id="appArea">
+  <div class="topbar visible">
+    <div class="left">
+      <button onclick="goHome()">Ana Sayfa</button>
+      <div class="dropdown">
+        <button>Platform</button>
+        <div class="dropdown-content" id="platformMenu"></div>
+      </div>
+    </div>
+    <div class="right">Hoşgeldin, <span id="username">...</span></div>
   </div>
+  <div class="catalog visible" id="catalog"><p>Oyunları görmek için bir platform ve model seçin.</p></div>
+</div>
 
-  <div id="register-container" class="card hidden">
-    <h2>Kayıt Ol</h2>
-    <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
-    <input type="text" id="regName" placeholder="Ad">
-    <input type="text" id="regSurname" placeholder="Soyad">
-    <input type="email" id="regEmail" placeholder="Mail Adresi">
-    <input type="password" id="regPassword" placeholder="Parola">
-    <input type="password" id="regConfirmPassword" placeholder="Parola Tekrarı">
-    <button onclick="register()">Gönder</button>
-    <button onclick="showLogin()">Geri</button>
-  </div>
+<!-- Video Modal -->
+<div id="videoModal" style="display:none; position:fixed; top:10%; left:10%; width:80%; height:70%; background:#000; z-index:9999;">
+  <button onclick="closeVideo()" style="position:absolute; top:10px; right:10px; z-index:99999;">Kapat</button>
+  <iframe id="videoFrame" width="100%" height="100%" src="" frameborder="0" allowfullscreen></iframe>
+</div>
 
-  <div id="reset-container" class="card hidden">
-    <h2>Şifre Sıfırla</h2>
-    <input type="email" id="resetEmail" placeholder="Mail Adresi">
-    <button onclick="resetPassword()">Sıfırlama Linki Gönder</button>
-    <button onclick="showLogin()">Geri</button>
-  </div>
+<!-- Firebase -->
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
+    authDomain: "akmegamestore-66522.firebaseapp.com",
+    databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "akmegamestore-66522",
+    storageBucket: "akmegamestore-66522.appspot.com",
+    messagingSenderId: "89303927223",
+    appId: "1:89303927223:web:c1b6bc1231e191a5920032"
+  };
 
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
 
-  <script>
-    const firebaseConfig = {
-      apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
-      authDomain: "akmegamestore-66522.firebaseapp.com",
-      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-      projectId: "akmegamestore-66522",
-      storageBucket: "akmegamestore-66522.firebasestorage.app",
-      messagingSenderId: "89303927223",
-      appId: "1:89303927223:web:c1b6bc1231e191a5920032"
-    };
+  function login() {
+    const email = document.getElementById("loginEmail").value;
+    const password = document.getElementById("loginPassword").value;
+    const remember = document.getElementById("rememberMe").checked;
 
-    firebase.initializeApp(firebaseConfig);
-    const auth = firebase.auth();
+    auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION)
+      .then(() => auth.signInWithEmailAndPassword(email, password))
+      .then(() => {
+        document.getElementById("loginCard").classList.remove("visible");
+        document.querySelector(".topbar").classList.add("visible");
+        document.getElementById("catalog").classList.add("visible");
+        document.getElementById("username").innerText = auth.currentUser.email;
+        loadPlatforms();
+      })
+      .catch(err => alert(err.message));
+  }
 
-    function showRegister() {
-      document.getElementById("login-container").classList.add("hidden");
-      document.getElementById("register-container").classList.remove("hidden");
-    }
+  function loadPlatforms() {
+    db.ref("cihazlar").once("value").then(snapshot => {
+      const platformMenu = document.getElementById("platformMenu");
+      platformMenu.innerHTML = "";
+      snapshot.forEach(child => {
+        const platform = child.key;
+        let btn = document.createElement("button");
+        btn.textContent = platform;
+        btn.onclick = () => loadModels(platform);
+        platformMenu.appendChild(btn);
+      });
+    });
+  }
 
-    function showLogin() {
-      document.querySelectorAll(".card").forEach(el => el.classList.add("hidden"));
-      document.getElementById("login-container").classList.remove("hidden");
-    }
+  function goHome() {
+    document.getElementById("catalog").innerHTML = "<p>Oyunları görmek için bir platform ve model seçin.</p>";
+  }
 
-    function showReset() {
-      document.getElementById("login-container").classList.add("hidden");
-      document.getElementById("reset-container").classList.remove("hidden");
-    }
+  function loadModels(platform) {
+    db.ref("cihazlar/" + platform).once("value").then(snapshot => {
+      const catalog = document.getElementById("catalog");
+      catalog.innerHTML = "";
+      snapshot.forEach(child => {
+        const model = child.key;
+        const btn = document.createElement("button");
+        btn.textContent = model;
+        btn.onclick = () => loadGames(platform, model);
+        catalog.appendChild(btn);
+      });
+    });
+  }
 
-    function login() {
-      const username = document.getElementById("loginUsername").value;
-      const password = document.getElementById("loginPassword").value;
-      const remember = document.getElementById("rememberMe").checked;
-      const email = localStorage.getItem(`emailFor_${username}`);
-      if (!email) return alert("Bu kullanıcı adına ait e-posta bulunamadı!");
+  function loadGames(platform, model) {
+    db.ref("oyunlar/" + platform + "/" + model).once("value").then(snapshot => {
+      const catalog = document.getElementById("catalog");
+      catalog.innerHTML = "";
+      if (!snapshot.exists()) return catalog.innerHTML = "<p>Henüz oyun eklenmedi.</p>";
+      snapshot.forEach(child => {
+        const game = child.val();
+        const div = document.createElement("div");
+        div.className = "game-card";
+        div.innerHTML = \`
+          <img src="\${game.image}" alt="">
+          <h4>\${game.name}</h4>
+          <button onclick="watchVideo('\${game.video}')">Video İzle</button>
+          <button onclick="addToCart('\${game.name}')">+ Sepete Ekle</button>
+          <button onclick="removeFromCart('\${game.name}')">− Sepetten Çıkar</button>
+          <button onclick="sendWhatsApp('\${game.name}')">WhatsApp'tan Gönder</button>
+        \`;
+        catalog.appendChild(div);
+      });
+    });
+  }
 
-      auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION)
-        .then(() => auth.signInWithEmailAndPassword(email, password))
-        .then(() => alert("Giriş başarılı!"))
-        .catch(err => alert(err.message));
-    }
+  function watchVideo(url) {
+    document.getElementById("videoModal").style.display = "block";
+    document.getElementById("videoFrame").src = url;
+  }
 
-    function register() {
-      const username = document.getElementById("regUsername").value;
-      const email = document.getElementById("regEmail").value;
-      const password = document.getElementById("regPassword").value;
-      const confirm = document.getElementById("regConfirmPassword").value;
+  function closeVideo() {
+    document.getElementById("videoModal").style.display = "none";
+    document.getElementById("videoFrame").src = "";
+  }
 
-      if (password !== confirm) return alert("Parolalar uyuşmuyor!");
+  function addToCart(game) {
+    alert(game + " sepete eklendi.");
+  }
 
-      auth.createUserWithEmailAndPassword(email, password)
-        .then(user => {
-          user.user.sendEmailVerification().then(() => {
-            alert("Doğrulama maili gönderildi!");
-            localStorage.setItem(`emailFor_${username}`, email);
-          });
-        })
-        .catch(err => alert(err.message));
-    }
+  function removeFromCart(game) {
+    alert(game + " sepetten çıkarıldı.");
+  }
 
-    function resetPassword() {
-      const email = document.getElementById("resetEmail").value;
-      auth.sendPasswordResetEmail(email)
-        .then(() => alert("Sıfırlama linki gönderildi."))
-        .catch(err => alert(err.message));
-    }
-  </script>
+  function sendWhatsApp(game) {
+    const tel = "+905548801010";
+    const msg = encodeURIComponent("Sipariş etmek istiyorum: " + game);
+    window.open("https://wa.me/" + tel + "?text=" + msg, "_blank");
+  }
+</script>
 </body>
 </html>
