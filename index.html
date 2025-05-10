@@ -49,16 +49,33 @@
   </style>
 </head>
 <body>
-  <div id="authSection">
-    <h2>Kayıt Ol</h2>
-    <input type="text" id="regUsername" placeholder="Kullanıcı adı">
-    <input type="password" id="regPassword" placeholder="Şifre">
-    <button onclick="register()">Kayıt Ol</button>
-    <hr>
+  <div id="login-container" class="card">
     <h2>Giriş Yap</h2>
-    <input type="text" id="username" placeholder="Kullanıcı adı">
-    <input type="password" id="password" placeholder="Şifre">
-    <button onclick="login()">Giriş</button>
+    <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
+    <input type="password" id="loginPassword" placeholder="Şifre">
+    <label><input type="checkbox" id="rememberMe"> Beni Hatırla</label>
+    <button onclick="login()">Giriş Yap</button>
+    <button onclick="showRegister()">Kayıt Ol</button>
+    <button onclick="showReset()">Şifremi Unuttum</button>
+  </div>
+
+  <div id="register-container" class="card hidden">
+    <h2>Kayıt Ol</h2>
+    <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
+    <input type="text" id="regName" placeholder="Ad">
+    <input type="text" id="regSurname" placeholder="Soyad">
+    <input type="email" id="regEmail" placeholder="Mail Adresi">
+    <input type="password" id="regPassword" placeholder="Parola">
+    <input type="password" id="regConfirmPassword" placeholder="Parola Tekrarı">
+    <button onclick="register()">Gönder</button>
+    <button onclick="showLogin()">Geri</button>
+  </div>
+
+  <div id="reset-container" class="card hidden">
+    <h2>Şifre Sıfırla</h2>
+    <input type="email" id="resetEmail" placeholder="Mail Adresi">
+    <button onclick="resetPassword()">Sıfırlama Linki Gönder</button>
+    <button onclick="showLogin()">Geri</button>
   </div>
 
   <div id="catalogSection" style="display:none;">
