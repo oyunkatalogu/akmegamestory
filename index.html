@@ -14,6 +14,7 @@
       justify-content: center;
       align-items: center;
       height: 100vh;
+      flex-direction: column;
     }
     .card {
       background: #1a1a2e;
@@ -35,6 +36,13 @@
       background-color: #00f0ff;
       color: black;
       cursor: pointer;
+    }
+    #welcome {
+      margin-top: 20px;
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
     }
   </style>
 </head>
@@ -67,6 +75,12 @@
     <input type="email" id="resetEmail" placeholder="Mail Adresi">
     <button onclick="resetPassword()">Sıfırlama Linki Gönder</button>
     <button onclick="showLogin()">Geri</button>
+  </div>
+
+  <div id="welcome">
+    <img src="https://i.ibb.co/nQ0Ybng/akmetron.png" width="150">
+    <h2>Giriş Başarılı!</h2>
+    <p>Hoş geldin Akmetron kullanıcısı!</p>
   </div>
 
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
@@ -110,7 +124,10 @@
 
       auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION)
         .then(() => auth.signInWithEmailAndPassword(email, password))
-        .then(() => alert("Giriş başarılı!"))
+        .then(() => {
+          document.getElementById("login-container").classList.add("hidden");
+          document.getElementById("welcome").style.display = "flex";
+        })
         .catch(err => alert(err.message));
     }
 
