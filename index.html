@@ -176,10 +176,58 @@
         })
         .catch(err => alert(err.message));
     }
-  </script>
- <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js"></script>
+  
+  function goHome() {
+    document.getElementById("catalog-container").classList.add("hidden");
+    document.getElementById("contact").classList.add("hidden");
+    document.getElementById("welcome").style.display = "flex";
+  }
+
+  function logout() {
+    firebase.auth().signOut().then(() => {
+      location.reload();
+    });
+  }
+</script>
+ src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js">
+  function goHome() {
+    document.getElementById("catalog-container").classList.add("hidden");
+    document.getElementById("contact").classList.add("hidden");
+    document.getElementById("welcome").style.display = "flex";
+  }
+
+  function logout() {
+    firebase.auth().signOut().then(() => {
+      location.reload();
+    });
+  }
+</script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js">
+  function goHome() {
+    document.getElementById("catalog-container").classList.add("hidden");
+    document.getElementById("contact").classList.add("hidden");
+    document.getElementById("welcome").style.display = "flex";
+  }
+
+  function logout() {
+    firebase.auth().signOut().then(() => {
+      location.reload();
+    });
+  }
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-database-compat.js">
+  function goHome() {
+    document.getElementById("catalog-container").classList.add("hidden");
+    document.getElementById("contact").classList.add("hidden");
+    document.getElementById("welcome").style.display = "flex";
+  }
+
+  function logout() {
+    firebase.auth().signOut().then(() => {
+      location.reload();
+    });
+  }
+</script>
 
   <script>
     const firebaseConfig = {
@@ -222,7 +270,10 @@
         .then(() => {
           document.getElementById("login-container").classList.add("hidden");
           
+  
   document.getElementById("welcome").style.display = "flex";
+  document.getElementById("topbar").classList.remove("hidden");
+
   const welcomeUsername = document.getElementById("loginUsername").value;
   document.getElementById("welcomeMessage").innerText = "Hoş geldin, " + welcomeUsername + "!";
 
@@ -282,7 +333,19 @@
           }
         });
     }
-  </script>
+  
+  function goHome() {
+    document.getElementById("catalog-container").classList.add("hidden");
+    document.getElementById("contact").classList.add("hidden");
+    document.getElementById("welcome").style.display = "flex";
+  }
+
+  function logout() {
+    firebase.auth().signOut().then(() => {
+      location.reload();
+    });
+  }
+</script>
 </body>
 </html>
 
@@ -290,5 +353,17 @@
   function showContact() {
     document.getElementById("catalog-container").classList.add("hidden");
     document.getElementById("contact").classList.remove("hidden");
+  }
+
+  function goHome() {
+    document.getElementById("catalog-container").classList.add("hidden");
+    document.getElementById("contact").classList.add("hidden");
+    document.getElementById("welcome").style.display = "flex";
+  }
+
+  function logout() {
+    firebase.auth().signOut().then(() => {
+      location.reload();
+    });
   }
 </script>
