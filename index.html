@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -39,7 +40,6 @@
 </head>
 <body>
 
-  <!-- Giriş Formu -->
   <div id="login-container" class="card">
     <h2>Giriş Yap</h2>
     <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
@@ -50,7 +50,6 @@
     <button onclick="showReset()">Şifremi Unuttum</button>
   </div>
 
-  <!-- Kayıt Formu -->
   <div id="register-container" class="card hidden">
     <h2>Kayıt Ol</h2>
     <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
@@ -63,7 +62,6 @@
     <button onclick="showLogin()">Geri</button>
   </div>
 
-  <!-- Şifre Sıfırlama Formu -->
   <div id="reset-container" class="card hidden">
     <h2>Şifre Sıfırla</h2>
     <input type="email" id="resetEmail" placeholder="Mail Adresi">
@@ -71,12 +69,10 @@
     <button onclick="showLogin()">Geri</button>
   </div>
 
-  <!-- Firebase -->
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
 
   <script>
-    // Firebase yapılandırması (Senin verdiğin bilgilerle)
     const firebaseConfig = {
       apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
       authDomain: "akmegamestore-66522.firebaseapp.com",
@@ -87,7 +83,6 @@
       appId: "1:89303927223:web:c1b6bc1231e191a5920032"
     };
 
-    // Firebase Başlat
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
 
@@ -110,7 +105,7 @@
       const username = document.getElementById("loginUsername").value;
       const password = document.getElementById("loginPassword").value;
       const remember = document.getElementById("rememberMe").checked;
-      const email = localStorage.getItem(emailFor_${username});
+      const email = localStorage.getItem(`emailFor_${username}`);
       if (!email) return alert("Bu kullanıcı adına ait e-posta bulunamadı!");
 
       auth.setPersistence(remember ? firebase.auth.Auth.Persistence.LOCAL : firebase.auth.Auth.Persistence.SESSION)
@@ -131,7 +126,7 @@
         .then(user => {
           user.user.sendEmailVerification().then(() => {
             alert("Doğrulama maili gönderildi!");
-            localStorage.setItem(emailFor_${username}, email);
+            localStorage.setItem(`emailFor_${username}`, email);
           });
         })
         .catch(err => alert(err.message));
@@ -144,6 +139,5 @@
         .catch(err => alert(err.message));
     }
   </script>
-
 </body>
 </html>
