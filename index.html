@@ -80,17 +80,17 @@
   </div>
 
   <div class="container hidden" id="deviceContainer">
-    <h2>Cihaz Seçin</h2>
-    <select id="deviceSelect" onchange="loadModels()">
-      <option value="">Cihaz Seç</option>
-    </select>
-    <select id="modelSelect" onchange="loadGames()">
-      <option value="">Model Seç</option>
-    </select>
-    <div id="gameList" style="margin-top: 15px;"></div>
-    <button onclick="showMain()">Geri</button>
-  </div>
-
+  <h2>Cihaz Seçin</h2>
+  <select id="deviceSelect" onchange="loadModels()">
+    <option value="">Cihaz Seç</option>
+  </select>
+  <select id="modelSelect">
+    <option value="">Model Seç</option>
+  </select>
+  <button onclick="loadGames()">Göster</button>
+  <div id="gameList" style="margin-top: 15px;"></div>
+  <button onclick="showMain()">Geri</button>
+</div>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
