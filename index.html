@@ -201,15 +201,11 @@
   }
 
   function logout() {
-    auth.signOut()
-      .then(() => {
-        localStorage.removeItem("savedUsername");
-        localStorage.removeItem("savedPassword");
-        showLogin();
-      })
-      .catch((error) => {
-        alert("Çıkış işlemi başarısız: " + error.message);
-      });
+    auth.signOut().then(() => {
+      localStorage.removeItem("savedUsername");
+      localStorage.removeItem("savedPassword");
+      showLogin();
+    });
   }
 
   function resetPassword() {
@@ -227,7 +223,9 @@
     if (!device) return;
 
     try {
-      const snapshot = await db.ref("models/" + device).once("value");
+      const snapshot = await db.ref("devices/" + device + "/models").once("value");
+      if (!snapshot.exists()) return alert("Model bulunamadı");
+
       snapshot.forEach(child => {
         const model = child.key;
         const option = document.createElement("option");
