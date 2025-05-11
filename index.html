@@ -94,8 +94,8 @@
     select.appendChild(option);
   });
 }
-
-async function loadModels() {
+</div>
+<div async function loadModels() {
   const device = document.getElementById("deviceSelect").value;
   const modelSelect = document.getElementById("modelSelect");
   modelSelect.innerHTML = <option value="">Model Seç</option>;
@@ -107,15 +107,15 @@ async function loadModels() {
     modelSelect.appendChild(option);
   });
 }
-
-async function loadGames() {
+</div>
+<div async function loadGames() {
   const device = document.getElementById("deviceSelect").value;
   const model = document.getElementById("modelSelect").value;
   const container = document.getElementById("gameList");
   container.innerHTML = "";
   const snapshot = await db.ref(devices/${device}/models/${model}/games).once("value");
-
-  snapshot.forEach(child => {
+</div>
+<div snapshot.forEach(child => {
     const game = child.val();
     const card = document.createElement("div");
     card.style = "background:#333; padding:10px; margin:10px 0; border-radius:8px;";
