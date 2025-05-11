@@ -206,6 +206,18 @@
     }
   }
 
+  function logout() {
+  auth.signOut()
+    .then(() => {
+      localStorage.removeItem("savedUsername");
+      localStorage.removeItem("savedPassword");
+      showLogin();
+    })
+    .catch((error) => {
+      alert("Çıkış işlemi başarısız: " + error.message);
+    });
+}
+
   function resetPassword() {
     const email = document.getElementById("resetMail").value;
     auth.sendPasswordResetEmail(email)
