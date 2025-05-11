@@ -16,6 +16,13 @@
       min-height: 100vh;
       margin: 0;
     }
+    .banner {
+  width: 100%;
+  max-height: 180px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-bottom: 15px;
+}
     .container {
       background-color: #2a2a3a;
       padding: 20px;
@@ -88,6 +95,7 @@
 </div>
 
 <div class="container hidden" id="catalogContainer">
+  <img src="https://i.hizliresim.com/msoztoj.jpeg" alt="Kapak Fotoğrafı" class="banner">
   <h2>Oyun Ara</h2>
   <input type="text" id="searchInput" placeholder="Oyun adı girin...">
   <button onclick="searchGames()">Ara</button>
