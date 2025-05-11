@@ -113,9 +113,7 @@
   <button onclick="showMain()">Geri</button>
 </div>
 
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js">
 <script>
   let cart = [];
 
@@ -224,5 +222,501 @@
   }
 </script>
 
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js">
+<script>
+  let cart = [];
+
+  function toggleCart(gameId, game) {
+    const index = cart.findIndex(item => item.id === gameId);
+    if (index === -1) {
+      cart.push({ id: gameId, ...game });
+    } else {
+      cart.splice(index, 1);
+    }
+    updateCartButton(gameId);
+  }
+
+  function updateCartButton(gameId) {
+    const button = document.getElementById("cart-btn-" + gameId);
+    if (!button) return;
+    const inCart = cart.find(item => item.id === gameId);
+    button.textContent = inCart ? "Sepetten Çıkar" : "Sepete Ekle";
+  }
+
+  function sendCartToWhatsApp() {
+    if (cart.length === 0) {
+      alert("Sepetiniz boş.");
+      return;
+    }
+    let message = "Sipariş Listesi:%0A";
+    let total = 0;
+    cart.forEach((item, i) => {
+      message += `${i + 1}. ${item.name} - ${item.price} TL%0A`;
+      total += parseFloat(item.price);
+    });
+    message += `%0AToplam: ${total} TL`;
+    const phone = "905548801010";
+    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+  }
+
+  async function loadGames() {
+    const selectedDevice = document.getElementById("deviceSelect").value;
+    const selectedModel = document.getElementById("modelSelect").value;
+    const container = document.getElementById("gameList");
+    container.innerHTML = "";
+
+    const snapshot = await db.ref("games").once("value");
+    snapshot.forEach(child => {
+      const game = child.val();
+      const gameId = child.key;
+      if (game.device === selectedDevice && game.model === selectedModel) {
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.innerHTML = `
+          <h4>${game.name}</h4>
+          <img src="${game.image}" alt="${game.name}">
+          <p>${game.description}</p>
+          <strong>${game.device} - ${game.model}</strong><br>
+          <strong>Fiyat: ${game.price} TL</strong><br>
+          <button id="cart-btn-${gameId}" onclick='toggleCart("${gameId}", ${JSON.stringify(game)})'>Sepete Ekle</button>
+        `;
+        container.appendChild(card);
+        updateCartButton(gameId);
+      }
+    });
+
+    const sendButton = document.createElement("button");
+    sendButton.textContent = "WhatsApp'tan Sipariş Gönder";
+    sendButton.onclick = sendCartToWhatsApp;
+    sendButton.style.marginTop = "10px";
+    container.appendChild(sendButton);
+  }
+
+  async function searchGames() {
+    const term = document.getElementById("searchInput").value.toLowerCase();
+    const container = document.getElementById("gameList");
+    container.innerHTML = "";
+    let found = false;
+
+    const snapshot = await db.ref("games").once("value");
+    snapshot.forEach(child => {
+      const game = child.val();
+      const gameId = child.key;
+      if (game.name && game.name.toLowerCase().includes(term)) {
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.innerHTML = `
+          <h4>${game.name}</h4>
+          <img src="${game.image}" alt="${game.name}">
+          <p>${game.description}</p>
+          <strong>${game.device} - ${game.model}</strong><br>
+          <strong>Fiyat: ${game.price} TL</strong><br>
+          <button id="cart-btn-${gameId}" onclick='toggleCart("${gameId}", ${JSON.stringify(game)})'>Sepete Ekle</button>
+        `;
+        container.appendChild(card);
+        updateCartButton(gameId);
+        found = true;
+      }
+    });
+
+    if (!found) {
+      container.innerHTML = "<p>Oyun bulunamadı.</p>";
+    } else {
+      const sendButton = document.createElement("button");
+      sendButton.textContent = "WhatsApp'tan Sipariş Gönder";
+      sendButton.onclick = sendCartToWhatsApp;
+      sendButton.style.marginTop = "10px";
+      container.appendChild(sendButton);
+    }
+  }
+</script>
+
+</script>
+<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js">
+<script>
+  let cart = [];
+
+  function toggleCart(gameId, game) {
+    const index = cart.findIndex(item => item.id === gameId);
+    if (index === -1) {
+      cart.push({ id: gameId, ...game });
+    } else {
+      cart.splice(index, 1);
+    }
+    updateCartButton(gameId);
+  }
+
+  function updateCartButton(gameId) {
+    const button = document.getElementById("cart-btn-" + gameId);
+    if (!button) return;
+    const inCart = cart.find(item => item.id === gameId);
+    button.textContent = inCart ? "Sepetten Çıkar" : "Sepete Ekle";
+  }
+
+  function sendCartToWhatsApp() {
+    if (cart.length === 0) {
+      alert("Sepetiniz boş.");
+      return;
+    }
+    let message = "Sipariş Listesi:%0A";
+    let total = 0;
+    cart.forEach((item, i) => {
+      message += `${i + 1}. ${item.name} - ${item.price} TL%0A`;
+      total += parseFloat(item.price);
+    });
+    message += `%0AToplam: ${total} TL`;
+    const phone = "905548801010";
+    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+  }
+
+  async function loadGames() {
+    const selectedDevice = document.getElementById("deviceSelect").value;
+    const selectedModel = document.getElementById("modelSelect").value;
+    const container = document.getElementById("gameList");
+    container.innerHTML = "";
+
+    const snapshot = await db.ref("games").once("value");
+    snapshot.forEach(child => {
+      const game = child.val();
+      const gameId = child.key;
+      if (game.device === selectedDevice && game.model === selectedModel) {
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.innerHTML = `
+          <h4>${game.name}</h4>
+          <img src="${game.image}" alt="${game.name}">
+          <p>${game.description}</p>
+          <strong>${game.device} - ${game.model}</strong><br>
+          <strong>Fiyat: ${game.price} TL</strong><br>
+          <button id="cart-btn-${gameId}" onclick='toggleCart("${gameId}", ${JSON.stringify(game)})'>Sepete Ekle</button>
+        `;
+        container.appendChild(card);
+        updateCartButton(gameId);
+      }
+    });
+
+    const sendButton = document.createElement("button");
+    sendButton.textContent = "WhatsApp'tan Sipariş Gönder";
+    sendButton.onclick = sendCartToWhatsApp;
+    sendButton.style.marginTop = "10px";
+    container.appendChild(sendButton);
+  }
+
+  async function searchGames() {
+    const term = document.getElementById("searchInput").value.toLowerCase();
+    const container = document.getElementById("gameList");
+    container.innerHTML = "";
+    let found = false;
+
+    const snapshot = await db.ref("games").once("value");
+    snapshot.forEach(child => {
+      const game = child.val();
+      const gameId = child.key;
+      if (game.name && game.name.toLowerCase().includes(term)) {
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.innerHTML = `
+          <h4>${game.name}</h4>
+          <img src="${game.image}" alt="${game.name}">
+          <p>${game.description}</p>
+          <strong>${game.device} - ${game.model}</strong><br>
+          <strong>Fiyat: ${game.price} TL</strong><br>
+          <button id="cart-btn-${gameId}" onclick='toggleCart("${gameId}", ${JSON.stringify(game)})'>Sepete Ekle</button>
+        `;
+        container.appendChild(card);
+        updateCartButton(gameId);
+        found = true;
+      }
+    });
+
+    if (!found) {
+      container.innerHTML = "<p>Oyun bulunamadı.</p>";
+    } else {
+      const sendButton = document.createElement("button");
+      sendButton.textContent = "WhatsApp'tan Sipariş Gönder";
+      sendButton.onclick = sendCartToWhatsApp;
+      sendButton.style.marginTop = "10px";
+      container.appendChild(sendButton);
+    }
+  }
+</script>
+
+</script>
+<script>
+  const firebaseConfig = {
+    apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
+    authDomain: "akmegamestore-66522.firebaseapp.com",
+    databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "akmegamestore-66522",
+    storageBucket: "akmegamestore-66522.appspot.com",
+    messagingSenderId: "89303927223",
+    appId: "1:89303927223:web:c1b6bc1231e191a5920032"
+  };
+  firebase.initializeApp(firebaseConfig);
+  const auth = firebase.auth();
+  const db = firebase.database();
+
+  function showLogin() {
+    document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+    document.getElementById("loginContainer").classList.remove("hidden");
+  }
+  function showRegister() {
+    document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+    document.getElementById("registerContainer").classList.remove("hidden");
+  }
+  function showReset() {
+    document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+    document.getElementById("resetContainer").classList.remove("hidden");
+  }
+  function showMain() {
+    document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+    document.getElementById("mainContainer").classList.remove("hidden");
+  }
+  function goCatalog() {
+    document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+    document.getElementById("catalogContainer").classList.remove("hidden");
+  }
+  async function register() {
+    const username = document.getElementById("regUsername").value;
+    const ad = document.getElementById("regAd").value;
+    const soyad = document.getElementById("regSoyad").value;
+    const mail = document.getElementById("regMail").value;
+    const tel = document.getElementById("regTel").value;
+    const pass = document.getElementById("regPass").value;
+    const passRepeat = document.getElementById("regPassRepeat").value;
+    if (pass !== passRepeat) return alert("Parolalar eşleşmiyor!");
+    try {
+      const result = await auth.createUserWithEmailAndPassword(mail, pass);
+      await result.user.sendEmailVerification();
+      const uid = result.user.uid;
+      await db.ref("users/" + uid).set({ username, ad, soyad, mail, tel });
+      alert("Doğrulama maili gönderildi!");
+      showLogin();
+    } catch (err) {
+      alert(err.message);
+    }
+  }
+
+  async function login() {
+    const username = document.getElementById("loginUsername").value;
+    const password = document.getElementById("loginPassword").value;
+    const remember = document.getElementById("rememberMe").checked;
+
+    const snapshot = await db.ref("users").once("value");
+    let email = null, name = "";
+    snapshot.forEach(child => {
+      if (child.val().username === username) {
+        email = child.val().mail;
+        name = child.val().ad;
+      }
+    });
+    if (!email) return alert("Kullanıcı bulunamadı");
+
+    try {
+      if (remember) {
+        localStorage.setItem("savedUsername", username);
+        localStorage.setItem("savedPassword", password);
+      }
+      const result = await auth.signInWithEmailAndPassword(email, password);
+      if (!result.user.emailVerified) return alert("Lütfen e-postanızı doğrulayın.");
+      document.getElementById("welcomeText").innerText = `Hoş geldin, ${name}!`;
+      showMain();
+    } catch (err) {
+      alert("Giriş başarısız: " + err.message);
+    }
+  }
+
+  function resetPassword() {
+    const email = document.getElementById("resetMail").value;
+    auth.sendPasswordResetEmail(email)
+      .then(() => alert("Şifre sıfırlama bağlantısı gönderildi!"))
+      .catch(err => alert(err.message));
+  }
+
+  function logout() {
+    auth.signOut()
+      .then(() => {
+        localStorage.removeItem("savedUsername");
+        localStorage.removeItem("savedPassword");
+        showLogin();
+      })
+      .catch((error) => {
+        alert("Çıkış işlemi başarısız: " + error.message);
+      });
+  }
+
+  async function loadGames() {
+    const selectedDevice = document.getElementById("deviceSelect").value;
+    const selectedModel = document.getElementById("modelSelect").value;
+    const container = document.getElementById("gameList");
+    container.innerHTML = "";
+
+    const snapshot = await db.ref("games").once("value");
+    snapshot.forEach(child => {
+      const game = child.val();
+      if (game.device === selectedDevice && game.model === selectedModel) {
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.innerHTML = `
+          <h4>${game.name}</h4>
+          <img src="${game.image}" alt="${game.name}">
+          <p>${game.description}</p>
+          <strong>${game.device} - ${game.model}</strong><br>
+          <strong>Fiyat: ${game.price} TL</strong>
+        `;
+        container.appendChild(card);
+      }
+    });
+  }
+
+  async function searchGames() {
+    const term = document.getElementById("searchInput").value.toLowerCase();
+    const container = document.getElementById("gameList");
+    container.innerHTML = "";
+    let found = false;
+
+    const snapshot = await db.ref("games").once("value");
+    snapshot.forEach(child => {
+      const game = child.val();
+      if (game.name && game.name.toLowerCase().includes(term)) {
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.innerHTML = `
+          <h4>${game.name}</h4>
+          <img src="${game.image}" alt="${game.name}">
+          <p>${game.description}</p>
+          <strong>${game.device} - ${game.model}</strong><br>
+          <strong>Fiyat: ${game.price} TL</strong>
+        `;
+        container.appendChild(card);
+        found = true;
+      }
+    });
+
+    if (!found) {
+      container.innerHTML = "<p>Oyun bulunamadı.</p>";
+    }
+  }
+
+  window.onload = () => {
+    const savedUsername = localStorage.getItem("savedUsername");
+    const savedPassword = localStorage.getItem("savedPassword");
+    if (savedUsername && savedPassword) {
+      document.getElementById("loginUsername").value = savedUsername;
+      document.getElementById("loginPassword").value = savedPassword;
+      document.getElementById("rememberMe").checked = true;
+    }
+  };
+
+<script>
+  let cart = [];
+
+  function toggleCart(gameId, game) {
+    const index = cart.findIndex(item => item.id === gameId);
+    if (index === -1) {
+      cart.push({ id: gameId, ...game });
+    } else {
+      cart.splice(index, 1);
+    }
+    updateCartButton(gameId);
+  }
+
+  function updateCartButton(gameId) {
+    const button = document.getElementById("cart-btn-" + gameId);
+    if (!button) return;
+    const inCart = cart.find(item => item.id === gameId);
+    button.textContent = inCart ? "Sepetten Çıkar" : "Sepete Ekle";
+  }
+
+  function sendCartToWhatsApp() {
+    if (cart.length === 0) {
+      alert("Sepetiniz boş.");
+      return;
+    }
+    let message = "Sipariş Listesi:%0A";
+    let total = 0;
+    cart.forEach((item, i) => {
+      message += `${i + 1}. ${item.name} - ${item.price} TL%0A`;
+      total += parseFloat(item.price);
+    });
+    message += `%0AToplam: ${total} TL`;
+    const phone = "905548801010";
+    window.open(`https://wa.me/${phone}?text=${message}`, "_blank");
+  }
+
+  async function loadGames() {
+    const selectedDevice = document.getElementById("deviceSelect").value;
+    const selectedModel = document.getElementById("modelSelect").value;
+    const container = document.getElementById("gameList");
+    container.innerHTML = "";
+
+    const snapshot = await db.ref("games").once("value");
+    snapshot.forEach(child => {
+      const game = child.val();
+      const gameId = child.key;
+      if (game.device === selectedDevice && game.model === selectedModel) {
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.innerHTML = `
+          <h4>${game.name}</h4>
+          <img src="${game.image}" alt="${game.name}">
+          <p>${game.description}</p>
+          <strong>${game.device} - ${game.model}</strong><br>
+          <strong>Fiyat: ${game.price} TL</strong><br>
+          <button id="cart-btn-${gameId}" onclick='toggleCart("${gameId}", ${JSON.stringify(game)})'>Sepete Ekle</button>
+        `;
+        container.appendChild(card);
+        updateCartButton(gameId);
+      }
+    });
+
+    const sendButton = document.createElement("button");
+    sendButton.textContent = "WhatsApp'tan Sipariş Gönder";
+    sendButton.onclick = sendCartToWhatsApp;
+    sendButton.style.marginTop = "10px";
+    container.appendChild(sendButton);
+  }
+
+  async function searchGames() {
+    const term = document.getElementById("searchInput").value.toLowerCase();
+    const container = document.getElementById("gameList");
+    container.innerHTML = "";
+    let found = false;
+
+    const snapshot = await db.ref("games").once("value");
+    snapshot.forEach(child => {
+      const game = child.val();
+      const gameId = child.key;
+      if (game.name && game.name.toLowerCase().includes(term)) {
+        const card = document.createElement("div");
+        card.className = "game-card";
+        card.innerHTML = `
+          <h4>${game.name}</h4>
+          <img src="${game.image}" alt="${game.name}">
+          <p>${game.description}</p>
+          <strong>${game.device} - ${game.model}</strong><br>
+          <strong>Fiyat: ${game.price} TL</strong><br>
+          <button id="cart-btn-${gameId}" onclick='toggleCart("${gameId}", ${JSON.stringify(game)})'>Sepete Ekle</button>
+        `;
+        container.appendChild(card);
+        updateCartButton(gameId);
+        found = true;
+      }
+    });
+
+    if (!found) {
+      container.innerHTML = "<p>Oyun bulunamadı.</p>";
+    } else {
+      const sendButton = document.createElement("button");
+      sendButton.textContent = "WhatsApp'tan Sipariş Gönder";
+      sendButton.onclick = sendCartToWhatsApp;
+      sendButton.style.marginTop = "10px";
+      container.appendChild(sendButton);
+    }
+  }
+</script>
+
+</script>
 </body>
 </html>
