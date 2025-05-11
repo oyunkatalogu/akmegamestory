@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="tr">
 <head>
@@ -12,6 +13,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column;
       height: 100vh;
       margin: 0;
     }
@@ -20,8 +22,9 @@
       padding: 30px;
       border-radius: 10px;
       width: 300px;
+      margin-top: 20px;
     }
-    input, button {
+    input, button, select {
       width: 100%;
       padding: 10px;
       margin: 8px 0;
@@ -80,6 +83,18 @@
     <button onclick="logout()">ÇIKIŞ YAP</button>
   </div>
 
+  <div class="container hidden" id="deviceContainer">
+    <h2>Cihaz Seçin</h2>
+    <select id="deviceSelect" onchange="loadModels()">
+      <option value="">Cihaz Seç</option>
+    </select>
+    <select id="modelSelect" onchange="loadGames()">
+      <option value="">Model Seç</option>
+    </select>
+    <div id="gameList" style="margin-top: 15px;"></div>
+    <button onclick="showMain()">Geri</button>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
@@ -98,19 +113,17 @@
     const db = firebase.firestore();
 
     function showLogin() {
+      document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
       document.getElementById("loginContainer").classList.remove("hidden");
-      document.getElementById("registerContainer").classList.add("hidden");
-      document.getElementById("resetContainer").classList.add("hidden");
-      document.getElementById("mainContainer").classList.add("hidden");
     }
 
     function showRegister() {
-      document.getElementById("loginContainer").classList.add("hidden");
+      document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
       document.getElementById("registerContainer").classList.remove("hidden");
     }
 
     function showReset() {
-      document.getElementById("loginContainer").classList.add("hidden");
+      document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
       document.getElementById("resetContainer").classList.remove("hidden");
     }
 
@@ -127,9 +140,7 @@
       try {
         const result = await auth.createUserWithEmailAndPassword(mail, pass);
         await result.user.sendEmailVerification();
-        await db.collection("users").doc(result.user.uid).set({
-          username, ad, soyad, mail, tel
-        });
+        await db.collection("users").doc(result.user.uid).set({ username, ad, soyad, mail, tel });
         alert("Doğrulama maili gönderildi!");
         showLogin();
       } catch (err) {
@@ -142,7 +153,6 @@
       const password = document.getElementById("loginPassword").value;
       const remember = document.getElementById("rememberMe").checked;
 
-      // Giriş email yerine kullanıcı adı ile olacaksa kullanıcı adı -> email eşleştirme yapılmalı
       const snapshot = await db.collection("users").where("username", "==", username).get();
       if (snapshot.empty) return alert("Kullanıcı bulunamadı.");
       const userData = snapshot.docs[0].data();
@@ -154,9 +164,9 @@
           localStorage.setItem("savedPassword", password);
         }
         const result = await auth.signInWithEmailAndPassword(email, password);
-        if (!result.user.emailVerified) return alert("Lütfen mail doğrulamasını yapınız.");
-        document.getElementById("welcomeText").innerText = Hoş geldin, ${userData.ad}!;
-        document.getElementById("loginContainer").classList.add("hidden");
+        if (!result.user.emailVerified) return alert("Mail onayı bekleniyor.");
+        document.getElementById("welcomeText").innerText = `Hoş geldin, ${userData.ad}!`;
+        document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
         document.getElementById("mainContainer").classList.remove("hidden");
       } catch (err) {
         alert(err.message);
@@ -176,14 +186,66 @@
     }
 
     function goHome() {
-      alert("Ana sayfaya dönüldü.");
+      alert("Ana sayfadasınız.");
     }
 
     function chooseDevice() {
-      alert("Cihaz seçim ekranına geçildi.");
+      loadDevices();
+      document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+      document.getElementById("deviceContainer").classList.remove("hidden");
     }
 
-    // Otomatik doldurma
+    function showMain() {
+      document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
+      document.getElementById("mainContainer").classList.remove("hidden");
+    }
+
+    async function loadDevices() {
+      const select = document.getElementById("deviceSelect");
+      select.innerHTML = `<option value="">Cihaz Seç</option>`;
+      const snapshot = await db.collection("devices").get();
+      snapshot.forEach(doc => {
+        const option = document.createElement("option");
+        option.value = doc.id;
+        option.textContent = doc.id;
+        select.appendChild(option);
+      });
+    }
+
+    async function loadModels() {
+      const device = document.getElementById("deviceSelect").value;
+      const modelSelect = document.getElementById("modelSelect");
+      modelSelect.innerHTML = `<option value="">Model Seç</option>`;
+      const snapshot = await db.collection("devices").doc(device).collection("models").get();
+      snapshot.forEach(doc => {
+        const option = document.createElement("option");
+        option.value = doc.id;
+        option.textContent = doc.id;
+        modelSelect.appendChild(option);
+      });
+    }
+
+    async function loadGames() {
+      const device = document.getElementById("deviceSelect").value;
+      const model = document.getElementById("modelSelect").value;
+      const container = document.getElementById("gameList");
+      container.innerHTML = "";
+      const snapshot = await db.collection("devices").doc(device).collection("models").doc(model).collection("games").get();
+
+      snapshot.forEach(doc => {
+        const game = doc.data();
+        const card = document.createElement("div");
+        card.style = "background:#333; padding:10px; margin:10px 0; border-radius:8px;";
+        card.innerHTML = `
+          <h4>${game.name}</h4>
+          <img src="${game.image}" alt="${game.name}" style="width:100%;border-radius:5px;">
+          <p>${game.description}</p>
+          <strong>Fiyat: ${game.price} TL</strong>
+        `;
+        container.appendChild(card);
+      });
+    }
+
     window.onload = () => {
       const savedUsername = localStorage.getItem("savedUsername");
       const savedPassword = localStorage.getItem("savedPassword");
