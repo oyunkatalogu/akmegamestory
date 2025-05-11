@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AKME GAME - Tüm Sistem</title>
+  <title>AKME GAME</title>
   <style>
     body {
       background: linear-gradient(to right, #1f1f2f, #12121a);
@@ -46,6 +46,19 @@
       width: 100%;
       border-radius: 5px;
     }
+    .cover {
+      width: 100%;
+      max-height: 250px;
+      overflow: hidden;
+      margin-bottom: 15px;
+      border-radius: 10px;
+    }
+    .cover img {
+      width: 100%;
+      height: auto;
+      display: block;
+      object-fit: cover;
+    }
   </style>
 </head>
 <body>
@@ -81,6 +94,9 @@
 </div>
 
 <div class="container hidden" id="mainContainer">
+  <div class="cover">
+    <img src="https://i.hizliresim.com/msoztoj.jpeg" alt="Ana Sayfa Kapak">
+  </div>
   <h2>AKME GAME</h2>
   <p id="welcomeText"></p>
   <button onclick="goCatalog()">Kataloğa Git</button>
@@ -193,7 +209,7 @@
       }
       const result = await auth.signInWithEmailAndPassword(email, password);
       if (!result.user.emailVerified) return alert("Lütfen e-postanızı doğrulayın.");
-      document.getElementById("welcomeText").innerText = `Hoş geldin, ${name}!`;
+      document.getElementById("welcomeText").innerText = Hoş geldin, ${name}!;
       showMain();
     } catch (err) {
       alert("Giriş başarısız: " + err.message);
