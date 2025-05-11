@@ -105,13 +105,6 @@
   <button onclick="loadGames()">Göster</button>
 
   <div id="gameList" style="margin-top: 15px;"></div>
-  <div id="cartContainer" style="margin-top: 20px;">
-    <h3>Sepetim</h3>
-    <ul id="cartList" style="list-style: none; padding: 0;"></ul>
-    <p><strong>Toplam Fiyat: <span id="totalPrice">0</span> TL</strong></p>
-    <button onclick="sendCart()">WhatsApp'tan Gönder</button>
-  </div>
-
   <button onclick="showMain()">Geri</button>
 </div>
 
@@ -348,5 +341,48 @@ window.onload = () => {
     }
   };
 </script>
+
+<style>
+  #floatingCart {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: #2a2a3a;
+    border-radius: 10px;
+    padding: 15px;
+    width: 300px;
+    max-height: 60vh;
+    overflow-y: auto;
+    box-shadow: 0 0 10px #000;
+    z-index: 9999;
+  }
+  #floatingCart h4 {
+    margin: 0 0 10px 0;
+    font-size: 18px;
+    text-align: center;
+  }
+  #floatingCart ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+  #floatingCart li {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 6px;
+    font-size: 14px;
+  }
+  #floatingCart button {
+    margin-top: 10px;
+  }
+</style>
+
+<div id="floatingCart">
+  <h4>Sepetim</h4>
+  <ul id="cartList"></ul>
+  <p><strong>Toplam: <span id="totalPrice">0</span> TL</strong></p>
+  <button onclick="sendCart()">WhatsApp'tan Gönder</button>
+</div>
+
 </body>
 </html>
