@@ -64,6 +64,11 @@
   width: 100%;
   max-width: 300px;
   box-sizing: border-box;
+  background: #333;
+  padding: 10px;
+  margin: 10px;
+  border-radius: 8px;
+  color: white;
 }
   </style>
 </head>
@@ -108,6 +113,8 @@
 
 <div class="container hidden" id="catalogContainer">
   <img src="https://i.hizliresim.com/msoztoj.jpeg" alt="Kapak Fotoğrafı" class="banner">
+  <div class="container hidden" id="catalogContainer">
+  <img src="..." class="banner">
   <h2>Oyun Ara</h2>
   <input type="text" id="searchInput" placeholder="Oyun adı girin...">
   <button onclick="searchGames()">Ara</button>
@@ -124,9 +131,11 @@
   </select>
   <button onclick="loadGames()">Göster</button>
 
-  <div id="gameList" style="margin-top: 15px;"></div>
   <button onclick="showMain()">Geri</button>
 </div>
+
+<!-- Katalog dışı tam genişlik alan -->
+<div id="gameList" style="margin: 20px auto; max-width: 1200px; padding: 10px;"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
