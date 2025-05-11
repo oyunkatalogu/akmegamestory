@@ -105,6 +105,13 @@
   <button onclick="loadGames()">Göster</button>
 
   <div id="gameList" style="margin-top: 15px;"></div>
+  <div id="cartContainer" style="margin-top: 20px;">
+    <h3>Sepetim</h3>
+    <ul id="cartList" style="list-style: none; padding: 0;"></ul>
+    <p><strong>Toplam Fiyat: <span id="totalPrice">0</span> TL</strong></p>
+    <button onclick="sendCart()">WhatsApp'tan Gönder</button>
+  </div>
+
   <button onclick="showMain()">Geri</button>
 </div>
 
@@ -300,9 +307,15 @@ function removeFromCart(code) {
   updateCartUI();
 }
 
+function toggleCart() {
+  const cartBox = document.getElementById("floatingCart");
+  cartBox.style.display = cartBox.style.display === "block" ? "none" : "block";
+}
+
 function updateCartUI() {
   const list = document.getElementById("cartList");
   const totalDisplay = document.getElementById("totalPrice");
+  const toggleBtn = document.getElementById("cartToggleBtn");
   list.innerHTML = "";
   let total = 0;
 
@@ -310,6 +323,15 @@ function updateCartUI() {
     const li = document.createElement("li");
     li.innerHTML = `
       ${game.name} - ${game.price} TL 
+      <button onclick="removeFromCart('${game.code}')">X</button>
+    `;
+    list.appendChild(li);
+    total += Number(game.price);
+  });
+
+  totalDisplay.innerText = total.toFixed(2);
+  toggleBtn.innerText = "Sepet (" + cart.length + ")";
+} - ${game.price} TL 
       <button onclick="removeFromCart('${game.code}')">Kaldır</button>
     `;
     list.appendChild(li);
@@ -343,22 +365,36 @@ window.onload = () => {
 </script>
 
 <style>
-  #floatingCart {
+  #cartToggleBtn {
     position: fixed;
     bottom: 20px;
+    right: 20px;
+    background: #00bcd4;
+    color: white;
+    border: none;
+    border-radius: 50px;
+    padding: 10px 16px;
+    z-index: 10000;
+    cursor: pointer;
+    font-size: 14px;
+  }
+  #floatingCart {
+    display: none;
+    position: fixed;
+    bottom: 70px;
     right: 20px;
     background: #2a2a3a;
     border-radius: 10px;
     padding: 15px;
-    width: 300px;
-    max-height: 60vh;
+    width: 280px;
+    max-height: 50vh;
     overflow-y: auto;
     box-shadow: 0 0 10px #000;
     z-index: 9999;
   }
   #floatingCart h4 {
     margin: 0 0 10px 0;
-    font-size: 18px;
+    font-size: 16px;
     text-align: center;
   }
   #floatingCart ul {
@@ -370,13 +406,14 @@ window.onload = () => {
     display: flex;
     justify-content: space-between;
     margin-bottom: 6px;
-    font-size: 14px;
+    font-size: 13px;
   }
   #floatingCart button {
     margin-top: 10px;
   }
 </style>
 
+<button id="cartToggleBtn" onclick="toggleCart()">Sepet (0)</button>
 <div id="floatingCart">
   <h4>Sepetim</h4>
   <ul id="cartList"></ul>
