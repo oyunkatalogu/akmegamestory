@@ -8,68 +8,78 @@
     body {
       background: linear-gradient(to right, #1f1f2f, #12121a);
       font-family: 'Segoe UI', sans-serif;
-      color: white
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      min-height: 100vh;
+      color: white;
       margin: 0;
+      padding: 0;
     }
+
     .banner {
-  width: 100%;
-  max-height: 180px;
-  object-fit: cover;
-  border-radius: 8px;
-  margin-bottom: 15px;
-}
+      width: 100%;
+      max-height: 180px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 15px;
+    }
+
     .container {
-  background-color: #2a2a3a;
-  padding: 20px;
-  border-radius: 10px;
-  width: 90%;
-  max-width: 400px;
-  margin: 20px auto;
-}
+      background-color: #2a2a3a;
+      padding: 20px;
+      border-radius: 10px;
+      width: 90%;
+      max-width: 400px;
+      margin: 20px auto;
+    }
+
     input, button, select {
       width: 100%;
       padding: 10px;
       margin: 6px 0;
       border: none;
       border-radius: 5px;
+      font-size: 16px;
     }
+
     button {
       background-color: #00bcd4;
       color: white;
       cursor: pointer;
     }
+
     .hidden { display: none; }
+
+    #gameList {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      max-width: 1200px;
+      margin: 20px auto;
+      padding: 10px;
+    }
+
     .game-card {
+      width: 100%;
+      max-width: 300px;
       background: #333;
       padding: 10px;
-      margin: 10px 0;
+      margin: 10px;
       border-radius: 8px;
+      color: white;
+      box-sizing: border-box;
     }
+
     .game-card img {
       width: 100%;
+      height: auto;
+      max-height: 200px;
+      object-fit: cover;
       border-radius: 5px;
     }
-    #gameList {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-}
-.game-card {
-  width: 100%;
-  max-width: 300px;
-  box-sizing: border-box;
-  background: #333;
-  padding: 10px;
-  margin: 10px;
-  border-radius: 8px;
-  color: white;
-}
+
+    @media (min-width: 768px) {
+      h2 { font-size: 28px; }
+      input, button { font-size: 16px; padding: 12px; }
+    }
   </style>
 </head>
 <body>
@@ -113,8 +123,6 @@
 
 <div class="container hidden" id="catalogContainer">
   <img src="https://i.hizliresim.com/msoztoj.jpeg" alt="Kapak Fotoğrafı" class="banner">
-  <div class="container hidden" id="catalogContainer">
-  <img src="..." class="banner">
   <h2>Oyun Ara</h2>
   <input type="text" id="searchInput" placeholder="Oyun adı girin...">
   <button onclick="searchGames()">Ara</button>
@@ -134,8 +142,8 @@
   <button onclick="showMain()">Geri</button>
 </div>
 
-<!-- Katalog dışı tam genişlik alan -->
-<div id="gameList" style="margin: 20px auto; max-width: 1200px; padding: 10px;"></div>
+<!-- Oyun listesi konteyneri ayrı ve geniş -->
+<div id="gameList"></div>
 
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
@@ -282,7 +290,7 @@
         card.innerHTML = `
           <h4>${game.name}</h4>
           <img src="${game.image}" alt="${game.name}">
-          <p>${game.description}</p>
+          <p>${game.description || ""}</p>
           <strong>${game.device} - ${game.model}</strong><br>
           <strong>Fiyat: ${game.price} TL</strong>
         `;
@@ -305,7 +313,7 @@
         card.innerHTML = `
           <h4>${game.name}</h4>
           <img src="${game.image}" alt="${game.name}">
-          <p>${game.description}</p>
+          <p>${game.description || ""}</p>
           <strong>${game.device} - ${game.model}</strong><br>
           <strong>Fiyat: ${game.price} TL</strong>
         `;
