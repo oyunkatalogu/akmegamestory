@@ -193,7 +193,7 @@
       }
       const result = await auth.signInWithEmailAndPassword(email, password);
       if (!result.user.emailVerified) return alert("Lütfen e-postanızı doğrulayın.");
-      document.getElementById("welcomeText").innerText = Hoş geldin, ${name}!;
+      document.getElementById("welcomeText").innerText = `Hoş geldin, ${name}!`;
       showMain();
     } catch (err) {
       alert("Giriş başarısız: " + err.message);
@@ -223,8 +223,7 @@
     const device = document.getElementById("deviceSelect").value;
     const modelSelect = document.getElementById("modelSelect");
 
-    modelSelect.innerHTML = '<option value="">Model Seç</option>'; // Temizle
-
+    modelSelect.innerHTML = '<option value="">Model Seç</option>';
     if (!device) return;
 
     try {
@@ -289,6 +288,7 @@
   }
 
   window.onload = () => {
+    showLogin();
     const savedUsername = localStorage.getItem("savedUsername");
     const savedPassword = localStorage.getItem("savedPassword");
     if (savedUsername && savedPassword) {
