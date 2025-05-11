@@ -83,7 +83,7 @@
     <button onclick="logout()">ÇIKIŞ YAP</button>
   </div>
 
- async function loadDevices() {
+<div async function loadDevices() {
   const select = document.getElementById("deviceSelect");
   select.innerHTML = <option value="">Cihaz Seç</option>;
   const snapshot = await db.ref("devices").once("value");
@@ -127,7 +127,7 @@ async function loadGames() {
     `;
     container.appendChild(card);
   });
-
+</div>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
