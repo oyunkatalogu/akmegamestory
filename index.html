@@ -83,17 +83,50 @@
     <button onclick="logout()">ÇIKIŞ YAP</button>
   </div>
 
-  <div class="container hidden" id="deviceContainer">
-    <h2>Cihaz Seçin</h2>
-    <select id="deviceSelect" onchange="loadModels()">
-      <option value="">Cihaz Seç</option>
-    </select>
-    <select id="modelSelect" onchange="loadGames()">
-      <option value="">Model Seç</option>
-    </select>
-    <div id="gameList" style="margin-top: 15px;"></div>
-    <button onclick="showMain()">Geri</button>
-  </div>
+ async function loadDevices() {
+  const select = document.getElementById("deviceSelect");
+  select.innerHTML = <option value="">Cihaz Seç</option>;
+  const snapshot = await db.ref("devices").once("value");
+  snapshot.forEach(child => {
+    const option = document.createElement("option");
+    option.value = child.key;
+    option.textContent = child.key;
+    select.appendChild(option);
+  });
+}
+
+async function loadModels() {
+  const device = document.getElementById("deviceSelect").value;
+  const modelSelect = document.getElementById("modelSelect");
+  modelSelect.innerHTML = <option value="">Model Seç</option>;
+  const snapshot = await db.ref(devices/${device}/models).once("value");
+  snapshot.forEach(child => {
+    const option = document.createElement("option");
+    option.value = child.key;
+    option.textContent = child.key;
+    modelSelect.appendChild(option);
+  });
+}
+
+async function loadGames() {
+  const device = document.getElementById("deviceSelect").value;
+  const model = document.getElementById("modelSelect").value;
+  const container = document.getElementById("gameList");
+  container.innerHTML = "";
+  const snapshot = await db.ref(devices/${device}/models/${model}/games).once("value");
+
+  snapshot.forEach(child => {
+    const game = child.val();
+    const card = document.createElement("div");
+    card.style = "background:#333; padding:10px; margin:10px 0; border-radius:8px;";
+    card.innerHTML = `
+      <h4>${game.name}</h4>
+      <img src="${game.image}" alt="${game.name}" style="width:100%;border-radius:5px;">
+      <p>${game.description}</p>
+      <strong>Fiyat: ${game.price} TL</strong>
+    `;
+    container.appendChild(card);
+  });
 
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
