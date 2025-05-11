@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Giriş Yap</title>
+  <title>AKME GAME Giriş</title>
   <style>
     body {
       background: linear-gradient(to right, #1f1f2f, #12121a);
@@ -36,12 +36,8 @@
       color: white;
       cursor: pointer;
     }
-    .hidden {
-      display: none;
-    }
-    label {
-      font-size: 14px;
-    }
+    .hidden { display: none; }
+    label { font-size: 14px; }
   </style>
 </head>
 <body>
@@ -71,7 +67,7 @@
   <div class="container hidden" id="resetContainer">
     <h2>Şifre Sıfırla</h2>
     <input type="email" id="resetMail" placeholder="Kayıtlı Mail Adresi">
-    <button onclick="resetPassword()">Sıfırlama Linki Gönder</button>
+    <button onclick="resetPassword()">Şifre Linki Gönder</button>
     <button onclick="showLogin()">Geri</button>
   </div>
 
@@ -83,67 +79,34 @@
     <button onclick="logout()">ÇIKIŞ YAP</button>
   </div>
 
-<div async function loadDevices() {
-  const select = document.getElementById("deviceSelect");
-  select.innerHTML = <option value="">Cihaz Seç</option>;
-  const snapshot = await db.ref("devices").once("value");
-  snapshot.forEach(child => {
-    const option = document.createElement("option");
-    option.value = child.key;
-    option.textContent = child.key;
-    select.appendChild(option);
-  });
-}
-</div>
-<div async function loadModels() {
-  const device = document.getElementById("deviceSelect").value;
-  const modelSelect = document.getElementById("modelSelect");
-  modelSelect.innerHTML = <option value="">Model Seç</option>;
-  const snapshot = await db.ref(devices/${device}/models).once("value");
-  snapshot.forEach(child => {
-    const option = document.createElement("option");
-    option.value = child.key;
-    option.textContent = child.key;
-    modelSelect.appendChild(option);
-  });
-}
-</div>
-<div async function loadGames() {
-  const device = document.getElementById("deviceSelect").value;
-  const model = document.getElementById("modelSelect").value;
-  const container = document.getElementById("gameList");
-  container.innerHTML = "";
-  const snapshot = await db.ref(devices/${device}/models/${model}/games).once("value");
-</div>
-<div snapshot.forEach(child => {
-    const game = child.val();
-    const card = document.createElement("div");
-    card.style = "background:#333; padding:10px; margin:10px 0; border-radius:8px;";
-    card.innerHTML = `
-      <h4>${game.name}</h4>
-      <img src="${game.image}" alt="${game.name}" style="width:100%;border-radius:5px;">
-      <p>${game.description}</p>
-      <strong>Fiyat: ${game.price} TL</strong>
-    `;
-    container.appendChild(card);
-  });
-</div>
+  <div class="container hidden" id="deviceContainer">
+    <h2>Cihaz Seçin</h2>
+    <select id="deviceSelect" onchange="loadModels()">
+      <option value="">Cihaz Seç</option>
+    </select>
+    <select id="modelSelect" onchange="loadGames()">
+      <option value="">Model Seç</option>
+    </select>
+    <div id="gameList" style="margin-top: 15px;"></div>
+    <button onclick="showMain()">Geri</button>
+  </div>
+
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <script>
     const firebaseConfig = {
-  apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
-  authDomain: "akmegamestore-66522.firebaseapp.com",
-  databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "akmegamestore-66522",
-  storageBucket: "akmegamestore-66522.firebasestorage.app",
-  messagingSenderId: "89303927223",
-  appId: "1:89303927223:web:c1b6bc1231e191a5920032"
-};
+      apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
+      authDomain: "akmegamestore-66522.firebaseapp.com",
+      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "akmegamestore-66522",
+      storageBucket: "akmegamestore-66522.appspot.com",
+      messagingSenderId: "89303927223",
+      appId: "1:89303927223:web:c1b6bc1231e191a5920032"
+    };
     firebase.initializeApp(firebaseConfig);
     const auth = firebase.auth();
-    const db = firebase.firestore();
+    const db = firebase.database();
 
     function showLogin() {
       document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
@@ -173,7 +136,8 @@
       try {
         const result = await auth.createUserWithEmailAndPassword(mail, pass);
         await result.user.sendEmailVerification();
-        await db.collection("users").doc(result.user.uid).set({ username, ad, soyad, mail, tel });
+        const uid = result.user.uid;
+        await db.ref("users/" + uid).set({ username, ad, soyad, mail, tel });
         alert("Doğrulama maili gönderildi!");
         showLogin();
       } catch (err) {
@@ -186,10 +150,15 @@
       const password = document.getElementById("loginPassword").value;
       const remember = document.getElementById("rememberMe").checked;
 
-      const snapshot = await db.collection("users").where("username", "==", username).get();
-      if (snapshot.empty) return alert("Kullanıcı bulunamadı.");
-      const userData = snapshot.docs[0].data();
-      const email = userData.mail;
+      const snapshot = await db.ref("users").once("value");
+      let email = null, name = "";
+      snapshot.forEach(child => {
+        if (child.val().username === username) {
+          email = child.val().mail;
+          name = child.val().ad;
+        }
+      });
+      if (!email) return alert("Kullanıcı bulunamadı");
 
       try {
         if (remember) {
@@ -197,12 +166,12 @@
           localStorage.setItem("savedPassword", password);
         }
         const result = await auth.signInWithEmailAndPassword(email, password);
-        if (!result.user.emailVerified) return alert("Mail onayı bekleniyor.");
-        document.getElementById("welcomeText").innerText = `Hoş geldin, ${userData.ad}!`;
+        if (!result.user.emailVerified) return alert("Lütfen e-postanızı doğrulayın.");
+        document.getElementById("welcomeText").innerText = `Hoş geldin, ${name}!`;
         document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
         document.getElementById("mainContainer").classList.remove("hidden");
       } catch (err) {
-        alert(err.message);
+        alert("Giriş başarısız: " + err.message);
       }
     }
 
@@ -236,11 +205,11 @@
     async function loadDevices() {
       const select = document.getElementById("deviceSelect");
       select.innerHTML = `<option value="">Cihaz Seç</option>`;
-      const snapshot = await db.collection("devices").get();
-      snapshot.forEach(doc => {
+      const snapshot = await db.ref("devices").once("value");
+      snapshot.forEach(child => {
         const option = document.createElement("option");
-        option.value = doc.id;
-        option.textContent = doc.id;
+        option.value = child.key;
+        option.textContent = child.key;
         select.appendChild(option);
       });
     }
@@ -249,11 +218,11 @@
       const device = document.getElementById("deviceSelect").value;
       const modelSelect = document.getElementById("modelSelect");
       modelSelect.innerHTML = `<option value="">Model Seç</option>`;
-      const snapshot = await db.collection("devices").doc(device).collection("models").get();
-      snapshot.forEach(doc => {
+      const snapshot = await db.ref(`devices/${device}/models`).once("value");
+      snapshot.forEach(child => {
         const option = document.createElement("option");
-        option.value = doc.id;
-        option.textContent = doc.id;
+        option.value = child.key;
+        option.textContent = child.key;
         modelSelect.appendChild(option);
       });
     }
@@ -263,10 +232,9 @@
       const model = document.getElementById("modelSelect").value;
       const container = document.getElementById("gameList");
       container.innerHTML = "";
-      const snapshot = await db.collection("devices").doc(device).collection("models").doc(model).collection("games").get();
-
-      snapshot.forEach(doc => {
-        const game = doc.data();
+      const snapshot = await db.ref(`devices/${device}/models/${model}/games`).once("value");
+      snapshot.forEach(child => {
+        const game = child.val();
         const card = document.createElement("div");
         card.style = "background:#333; padding:10px; margin:10px 0; border-radius:8px;";
         card.innerHTML = `
