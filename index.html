@@ -50,7 +50,6 @@
   </style>
 </head>
 <body>
-
 <div class="container" id="loginContainer">
   <h2>Giriş Yap</h2>
   <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
@@ -94,7 +93,7 @@
   <button onclick="searchGames()">Ara</button>
 
   <h3>Cihaz/Model ile Filtrele</h3>
-  <select id="deviceSelect" onchange="loadModels()">
+  <select id="deviceSelect">
     <option value="">Cihaz Seç</option>
     <option value="PlayStation">PlayStation</option>
     <option value="XBOX">XBOX</option>
@@ -135,22 +134,18 @@
     document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
     document.getElementById("loginContainer").classList.remove("hidden");
   }
-
   function showRegister() {
     document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
     document.getElementById("registerContainer").classList.remove("hidden");
   }
-
   function showReset() {
     document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
     document.getElementById("resetContainer").classList.remove("hidden");
   }
-
   function showMain() {
     document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
     document.getElementById("mainContainer").classList.remove("hidden");
   }
-
   function goCatalog() {
     document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
     document.getElementById("catalogContainer").classList.remove("hidden");
@@ -206,23 +201,23 @@
     }
   }
 
-  function logout() {
-  auth.signOut()
-    .then(() => {
-      localStorage.removeItem("savedUsername");
-      localStorage.removeItem("savedPassword");
-      showLogin();
-    })
-    .catch((error) => {
-      alert("Çıkış işlemi başarısız: " + error.message);
-    });
-}
-
   function resetPassword() {
     const email = document.getElementById("resetMail").value;
     auth.sendPasswordResetEmail(email)
       .then(() => alert("Şifre sıfırlama bağlantısı gönderildi!"))
       .catch(err => alert(err.message));
+  }
+
+  function logout() {
+    auth.signOut()
+      .then(() => {
+        localStorage.removeItem("savedUsername");
+        localStorage.removeItem("savedPassword");
+        showLogin();
+      })
+      .catch((error) => {
+        alert("Çıkış işlemi başarısız: " + error.message);
+      });
   }
 
   async function loadGames() {
