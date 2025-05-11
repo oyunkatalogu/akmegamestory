@@ -4,7 +4,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AKME GAME - Tüm Sistem</title>
+  <title>AKME GAME - Tam Sistem</title>
   <style>
     body {
       background: linear-gradient(to right, #1f1f2f, #12121a);
@@ -150,7 +150,6 @@
     document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
     document.getElementById("catalogContainer").classList.remove("hidden");
   }
-
   async function register() {
     const username = document.getElementById("regUsername").value;
     const ad = document.getElementById("regAd").value;
@@ -248,6 +247,7 @@
     const term = document.getElementById("searchInput").value.toLowerCase();
     const container = document.getElementById("gameList");
     container.innerHTML = "";
+    let found = false;
 
     const snapshot = await db.ref("games").once("value");
     snapshot.forEach(child => {
@@ -263,8 +263,13 @@
           <strong>Fiyat: ${game.price} TL</strong>
         `;
         container.appendChild(card);
+        found = true;
       }
     });
+
+    if (!found) {
+      container.innerHTML = "<p>Oyun bulunamadı.</p>";
+    }
   }
 
   window.onload = () => {
