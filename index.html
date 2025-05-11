@@ -105,6 +105,13 @@
   <button onclick="loadGames()">Göster</button>
 
   <div id="gameList" style="margin-top: 15px;"></div>
+  <div id="cartContainer" style="margin-top: 20px;">
+    <h3>Sepetim</h3>
+    <ul id="cartList" style="list-style: none; padding: 0;"></ul>
+    <p><strong>Toplam Fiyat: <span id="totalPrice">0</span> TL</strong></p>
+    <button onclick="sendCart()">WhatsApp'tan Gönder</button>
+  </div>
+
   <button onclick="showMain()">Geri</button>
 </div>
 
@@ -255,7 +262,7 @@
           <img src="${game.image}" alt="${game.name}">
           <p>${game.description}</p>
           <strong>${game.device} - ${game.model}</strong><br>
-          <strong>Fiyat: ${game.price} TL</strong>
+          <strong>Fiyat: ${game.price} TL</strong><br><button onclick='addToCart({ name: "${game.name}", price: "${game.price}", code: "${child.key}", device: "${game.device}", model: "${game.model}" })'>Sepete Ekle</button>
         `;
         container.appendChild(card);
       }
@@ -278,14 +285,59 @@
           <img src="${game.image}" alt="${game.name}">
           <p>${game.description}</p>
           <strong>${game.device} - ${game.model}</strong><br>
-          <strong>Fiyat: ${game.price} TL</strong>
+          <strong>Fiyat: ${game.price} TL</strong><br><button onclick='addToCart({ name: "${game.name}", price: "${game.price}", code: "${child.key}", device: "${game.device}", model: "${game.model}" })'>Sepete Ekle</button>
         `;
         container.appendChild(card);
       }
     });
   }
 
-  window.onload = () => {
+  
+let cart = [];
+
+function addToCart(game) {
+  if (!cart.find(item => item.code === game.code)) {
+    cart.push(game);
+    updateCartUI();
+  }
+}
+
+function removeFromCart(code) {
+  cart = cart.filter(item => item.code !== code);
+  updateCartUI();
+}
+
+function updateCartUI() {
+  const list = document.getElementById("cartList");
+  const totalDisplay = document.getElementById("totalPrice");
+  list.innerHTML = "";
+  let total = 0;
+
+  cart.forEach(game => {
+    const li = document.createElement("li");
+    li.innerHTML = `
+      ${game.name} - ${game.price} TL 
+      <button onclick="removeFromCart('${game.code}')">Kaldır</button>
+    `;
+    list.appendChild(li);
+    total += Number(game.price);
+  });
+
+  totalDisplay.innerText = total.toFixed(2);
+}
+
+function sendCart() {
+  if (cart.length === 0) return alert("Sepet boş!");
+  const name = auth.currentUser?.email?.split("@")[0] || "Kullanıcı";
+  const list = cart.map(g => `• ${g.name} (${g.device}/${g.model}) - ${g.price} TL`).join("%0A");
+  const total = cart.reduce((sum, g) => sum + Number(g.price), 0);
+  const message = `Sipariş Sahibi: ${name}%0A%0A${list}%0A%0AToplam: ${total.toFixed(2)} TL`;
+  const url = "https://wa.me/905548801010?text=" + message;
+  window.open(url, "_blank");
+}
+
+
+window.onload = () => {
     showLogin();
     const savedUsername = localStorage.getItem("savedUsername");
     const savedPassword = localStorage.getItem("savedPassword");
