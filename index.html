@@ -101,11 +101,6 @@
   </select>
   <select id="modelSelect">
     <option value="">Model Seç</option>
-    <option value="PlayStation 1">PlayStation 1</option>
-    <option value="PlayStation 2">PlayStation 2</option>
-    <option value="PlayStation 3">PlayStation 3</option>
-    <option value="XBOX Classic">XBOX Classic</option>
-    <option value="Sega Mega Drive">Sega Mega Drive</option>
   </select>
   <button onclick="loadGames()">Göster</button>
 
@@ -198,7 +193,7 @@
       }
       const result = await auth.signInWithEmailAndPassword(email, password);
       if (!result.user.emailVerified) return alert("Lütfen e-postanızı doğrulayın.");
-      document.getElementById("welcomeText").innerText = `Hoş geldin, ${name}!`;
+      document.getElementById("welcomeText").innerText = Hoş geldin, ${name}!;
       showMain();
     } catch (err) {
       alert("Giriş başarısız: " + err.message);
@@ -206,22 +201,44 @@
   }
 
   function logout() {
-  auth.signOut()
-    .then(() => {
-      localStorage.removeItem("savedUsername");
-      localStorage.removeItem("savedPassword");
-      showLogin();
-    })
-    .catch((error) => {
-      alert("Çıkış işlemi başarısız: " + error.message);
-    });
-}
+    auth.signOut()
+      .then(() => {
+        localStorage.removeItem("savedUsername");
+        localStorage.removeItem("savedPassword");
+        showLogin();
+      })
+      .catch((error) => {
+        alert("Çıkış işlemi başarısız: " + error.message);
+      });
+  }
 
   function resetPassword() {
     const email = document.getElementById("resetMail").value;
     auth.sendPasswordResetEmail(email)
       .then(() => alert("Şifre sıfırlama bağlantısı gönderildi!"))
       .catch(err => alert(err.message));
+  }
+
+  async function loadModels() {
+    const device = document.getElementById("deviceSelect").value;
+    const modelSelect = document.getElementById("modelSelect");
+
+    modelSelect.innerHTML = '<option value="">Model Seç</option>'; // Temizle
+
+    if (!device) return;
+
+    try {
+      const snapshot = await db.ref("models/" + device).once("value");
+      snapshot.forEach(child => {
+        const model = child.key;
+        const option = document.createElement("option");
+        option.value = model;
+        option.textContent = model;
+        modelSelect.appendChild(option);
+      });
+    } catch (err) {
+      alert("Model verileri yüklenemedi: " + err.message);
+    }
   }
 
   async function loadGames() {
