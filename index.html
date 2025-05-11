@@ -105,13 +105,6 @@
   <button onclick="loadGames()">Göster</button>
 
   <div id="gameList" style="margin-top: 15px;"></div>
-  <div id="cartContainer" style="margin-top: 20px;">
-    <h3>Sepetim</h3>
-    <ul id="cartList" style="list-style: none; padding: 0;"></ul>
-    <p><strong>Toplam Fiyat: <span id="totalPrice">0</span> TL</strong></p>
-    <button onclick="sendCart()">WhatsApp'tan Gönder</button>
-  </div>
-
   <button onclick="showMain()">Geri</button>
 </div>
 
@@ -262,7 +255,7 @@
           <img src="${game.image}" alt="${game.name}">
           <p>${game.description}</p>
           <strong>${game.device} - ${game.model}</strong><br>
-          <strong>Fiyat: ${game.price} TL</strong><br><button onclick='addToCart({ name: "${game.name}", price: "${game.price}", code: "${child.key}", device: "${game.device}", model: "${game.model}" })'>Sepete Ekle</button>
+          <strong>Fiyat: ${game.price} TL</strong>
         `;
         container.appendChild(card);
       }
@@ -285,74 +278,14 @@
           <img src="${game.image}" alt="${game.name}">
           <p>${game.description}</p>
           <strong>${game.device} - ${game.model}</strong><br>
-          <strong>Fiyat: ${game.price} TL</strong><br><button onclick='addToCart({ name: "${game.name}", price: "${game.price}", code: "${child.key}", device: "${game.device}", model: "${game.model}" })'>Sepete Ekle</button>
+          <strong>Fiyat: ${game.price} TL</strong>
         `;
         container.appendChild(card);
       }
     });
   }
 
-  
-let cart = [];
-
-function addToCart(game) {
-  if (!cart.find(item => item.code === game.code)) {
-    cart.push(game);
-    updateCartUI();
-  }
-}
-
-function removeFromCart(code) {
-  cart = cart.filter(item => item.code !== code);
-  updateCartUI();
-}
-
-function toggleCart() {
-  const cartBox = document.getElementById("floatingCart");
-  cartBox.style.display = cartBox.style.display === "block" ? "none" : "block";
-}
-
-function updateCartUI() {
-  const list = document.getElementById("cartList");
-  const totalDisplay = document.getElementById("totalPrice");
-  const toggleBtn = document.getElementById("cartToggleBtn");
-  list.innerHTML = "";
-  let total = 0;
-
-  cart.forEach(game => {
-    const li = document.createElement("li");
-    li.innerHTML = `
-      ${game.name} - ${game.price} TL 
-      <button onclick="removeFromCart('${game.code}')">X</button>
-    `;
-    list.appendChild(li);
-    total += Number(game.price);
-  });
-
-  totalDisplay.innerText = total.toFixed(2);
-  toggleBtn.innerText = "Sepet (" + cart.length + ")";
-} - ${game.price} TL 
-      <button onclick="removeFromCart('${game.code}')">Kaldır</button>
-    `;
-    list.appendChild(li);
-    total += Number(game.price);
-  });
-
-  totalDisplay.innerText = total.toFixed(2);
-}
-
-function sendCart() {
-  if (cart.length === 0) return alert("Sepet boş!");
-  const name = auth.currentUser?.email?.split("@")[0] || "Kullanıcı";
-  const list = cart.map(g => `• ${g.name} (${g.device}/${g.model}) - ${g.price} TL`).join("%0A");
-  const total = cart.reduce((sum, g) => sum + Number(g.price), 0);
-  const message = `Sipariş Sahibi: ${name}%0A%0A${list}%0A%0AToplam: ${total.toFixed(2)} TL`;
-  const url = "https://wa.me/905548801010?text=" + message;
-  window.open(url, "_blank");
-}
-
-
-window.onload = () => {
+  window.onload = () => {
     showLogin();
     const savedUsername = localStorage.getItem("savedUsername");
     const savedPassword = localStorage.getItem("savedPassword");
@@ -363,63 +296,5 @@ window.onload = () => {
     }
   };
 </script>
-
-<style>
-  #cartToggleBtn {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    background: #00bcd4;
-    color: white;
-    border: none;
-    border-radius: 50px;
-    padding: 10px 16px;
-    z-index: 10000;
-    cursor: pointer;
-    font-size: 14px;
-  }
-  #floatingCart {
-    display: none;
-    position: fixed;
-    bottom: 70px;
-    right: 20px;
-    background: #2a2a3a;
-    border-radius: 10px;
-    padding: 15px;
-    width: 280px;
-    max-height: 50vh;
-    overflow-y: auto;
-    box-shadow: 0 0 10px #000;
-    z-index: 9999;
-  }
-  #floatingCart h4 {
-    margin: 0 0 10px 0;
-    font-size: 16px;
-    text-align: center;
-  }
-  #floatingCart ul {
-    list-style: none;
-    padding: 0;
-    margin: 0;
-  }
-  #floatingCart li {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 6px;
-    font-size: 13px;
-  }
-  #floatingCart button {
-    margin-top: 10px;
-  }
-</style>
-
-<button id="cartToggleBtn" onclick="toggleCart()">Sepet (0)</button>
-<div id="floatingCart">
-  <h4>Sepetim</h4>
-  <ul id="cartList"></ul>
-  <p><strong>Toplam: <span id="totalPrice">0</span> TL</strong></p>
-  <button onclick="sendCart()">WhatsApp'tan Gönder</button>
-</div>
-
 </body>
 </html>
