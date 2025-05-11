@@ -2,284 +2,233 @@
 <html lang="tr">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>AKME GAME - Tüm Sistem</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AkmeGameStore</title>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
   <style>
-    body {
-      background: linear-gradient(to right, #1f1f2f, #12121a);
-      font-family: 'Segoe UI', sans-serif;
-      color: white;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      flex-direction: column;
-      min-height: 100vh;
-      margin: 0;
-    }
-    .container {
-      background-color: #2a2a3a;
-      padding: 20px;
-      border-radius: 10px;
-      width: 320px;
-      margin: 20px 0;
-    }
-    input, button, select {
-      width: 100%;
-      padding: 10px;
-      margin: 6px 0;
-      border: none;
-      border-radius: 5px;
-    }
-    button {
-      background-color: #00bcd4;
-      color: white;
-      cursor: pointer;
-    }
+    body { font-family: Arial; background: #1e1e2f; color: #fff; text-align: center; margin: 0; padding: 0; }
+    .container { max-width: 400px; margin: 50px auto; background: #2e2e3f; padding: 20px; border-radius: 10px; }
+    input, button { width: 100%; padding: 10px; margin: 10px 0; border: none; border-radius: 5px; }
+    button { background: #4CAF50; color: white; cursor: pointer; }
     .hidden { display: none; }
-    .game-card {
-      background: #333;
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-    }
-    .game-card img {
-      width: 100%;
-      border-radius: 5px;
-    }
+    .catalog { display: flex; flex-wrap: wrap; justify-content: center; }
+    input, button { padding: 8px; margin: 5px 0; width: 50%; max-width: 150px; }
+    h2 { margin-top: 40px; }
   </style>
 </head>
 <body>
+  <div id="authSection">
+    <h2>Kayıt Ol</h2>
+    <input type="text" id="regUsername" placeholder="Kullanıcı adı">
+    <input type="password" id="regPassword" placeholder="Şifre">
+    <button onclick="register()">Kayıt Ol</button>
+    <hr>
+    <h2>Giriş Yap</h2>
+    <input type="text" id="username" placeholder="Kullanıcı adı">
+    <input type="password" id="password" placeholder="Şifre">
+    <button onclick="login()">Giriş</button>
+  </div>
 
-<div class="container" id="loginContainer">
-  <h2>Giriş Yap</h2>
-  <input type="text" id="loginUsername" placeholder="Kullanıcı Adı">
-  <input type="password" id="loginPassword" placeholder="Şifre">
-  <label><input type="checkbox" id="rememberMe"> Beni Hatırla</label>
-  <button onclick="login()">Giriş Yap</button>
-  <button onclick="showRegister()">Kayıt Ol</button>
-  <button onclick="showReset()">Şifremi Unuttum</button>
-</div>
+  <div id="catalogSection" style="display:none;">
+    <h2>Oyun Kataloğu</h2>
+    <input type="text" id="searchBox" oninput="filterGames()" placeholder="Oyun ara...">
+    <div class="catalog" id="gameCatalog"></div>
 
-<div class="container hidden" id="registerContainer">
-  <h2>Kayıt Ol</h2>
-  <input type="text" id="regUsername" placeholder="Kullanıcı Adı">
-  <input type="text" id="regAd" placeholder="Ad">
-  <input type="text" id="regSoyad" placeholder="Soyad">
-  <input type="email" id="regMail" placeholder="Mail Adresi">
-  <input type="tel" id="regTel" placeholder="Telefon Numarası">
-  <input type="password" id="regPass" placeholder="Parola">
-  <input type="password" id="regPassRepeat" placeholder="Parola Tekrarı">
-  <button onclick="register()">Gönder</button>
-  <button onclick="showLogin()">Geri</button>
-</div>
+    <h2>Favorilerim</h2>
+    <div class="catalog" id="favCatalog"></div>
 
-<div class="container hidden" id="resetContainer">
-  <h2>Şifre Sıfırla</h2>
-  <input type="email" id="resetMail" placeholder="Kayıtlı Mail Adresi">
-  <button onclick="resetPassword()">Sıfırlama Linki Gönder</button>
-  <button onclick="showLogin()">Geri</button>
-</div>
+    <h2>Sepetim</h2>
+    <div id="cartList"></div>
+    <p id="totalPrice">Toplam: 0 TL</p>
+    <button onclick="sendCartViaWhatsApp()">WhatsApp ile Gönder</button>
+  </div>
 
-<div class="container hidden" id="mainContainer">
-  <h2>AKME GAME</h2>
-  <p id="welcomeText"></p>
-  <button onclick="goCatalog()">Kataloğa Git</button>
-  <button onclick="logout()">ÇIKIŞ YAP</button>
-</div>
+  <script>
+    const firebaseConfig = {
+      apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
+      authDomain: "akmegamestore-66522.firebaseapp.com",
+      databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "akmegamestore-66522",
+      storageBucket: "akmegamestore-66522.firebasestorage.app",
+      messagingSenderId: "89303927223",
+      appId: "1:89303927223:web:c1b6bc1231e191a5920032"
+    };
+    firebase.initializeApp(firebaseConfig);
 
-<div class="container hidden" id="catalogContainer">
-  <h2>Oyun Ara</h2>
-  <input type="text" id="searchInput" placeholder="Oyun adı girin...">
-  <button onclick="searchGames()">Ara</button>
-
-  <h3>Cihaz/Model ile Filtrele</h3>
-  <select id="deviceSelect" onchange="loadModels()">
-    <option value="">Cihaz Seç</option>
-    <option value="PlayStation">PlayStation</option>
-    <option value="XBOX">XBOX</option>
-    <option value="Sega">Sega</option>
-  </select>
-  <select id="modelSelect">
-    <option value="">Model Seç</option>
-    <option value="PlayStation 1">PlayStation 1</option>
-    <option value="PlayStation 2">PlayStation 2</option>
-    <option value="PlayStation 3">PlayStation 3</option>
-    <option value="XBOX Classic">XBOX Classic</option>
-    <option value="Sega Mega Drive">Sega Mega Drive</option>
-  </select>
-  <button onclick="loadGames()">Göster</button>
-
-  <div id="gameList" style="margin-top: 15px;"></div>
-  <button onclick="showMain()">Geri</button>
-</div>
-
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/9.6.1/firebase-database-compat.js"></script>
-<script>
-  const firebaseConfig = {
-    apiKey: "AIzaSyBb1dqb3SqYpKtEb3WNt8LSVc4t1SGETe4",
-    authDomain: "akmegamestore-66522.firebaseapp.com",
-    databaseURL: "https://akmegamestore-66522-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "akmegamestore-66522",
-    storageBucket: "akmegamestore-66522.appspot.com",
-    messagingSenderId: "89303927223",
-    appId: "1:89303927223:web:c1b6bc1231e191a5920032"
-  };
-  firebase.initializeApp(firebaseConfig);
-  const auth = firebase.auth();
-  const db = firebase.database();
-
-  function showLogin() {
-    document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
-    document.getElementById("loginContainer").classList.remove("hidden");
-  }
-
-  function showRegister() {
-    document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
-    document.getElementById("registerContainer").classList.remove("hidden");
-  }
-
-  function showReset() {
-    document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
-    document.getElementById("resetContainer").classList.remove("hidden");
-  }
-
-  function showMain() {
-    document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
-    document.getElementById("mainContainer").classList.remove("hidden");
-  }
-
-  function goCatalog() {
-    document.querySelectorAll('.container').forEach(el => el.classList.add('hidden'));
-    document.getElementById("catalogContainer").classList.remove("hidden");
-  }
-
-  async function register() {
-    const username = document.getElementById("regUsername").value;
-    const ad = document.getElementById("regAd").value;
-    const soyad = document.getElementById("regSoyad").value;
-    const mail = document.getElementById("regMail").value;
-    const tel = document.getElementById("regTel").value;
-    const pass = document.getElementById("regPass").value;
-    const passRepeat = document.getElementById("regPassRepeat").value;
-    if (pass !== passRepeat) return alert("Parolalar eşleşmiyor!");
-    try {
-      const result = await auth.createUserWithEmailAndPassword(mail, pass);
-      await result.user.sendEmailVerification();
-      const uid = result.user.uid;
-      await db.ref("users/" + uid).set({ username, ad, soyad, mail, tel });
-      alert("Doğrulama maili gönderildi!");
-      showLogin();
-    } catch (err) {
-      alert(err.message);
+    function toEmbedURL(url) {
+      if (!url) return '';
+      if (url.includes("youtube.com/embed")) return url;
+      if (url.includes("youtu.be/")) {
+        const id = url.split("youtu.be/")[1].split("?")[0];
+        return `https://www.youtube.com/embed/${id}`;
+      }
+      if (url.includes("youtube.com/watch?v=")) {
+        const id = url.split("v=")[1].split("&")[0];
+        return `https://www.youtube.com/embed/${id}`;
+      }
+      return '';
     }
-  }
 
-  async function login() {
-    const username = document.getElementById("loginUsername").value;
-    const password = document.getElementById("loginPassword").value;
-    const remember = document.getElementById("rememberMe").checked;
-
-    const snapshot = await db.ref("users").once("value");
-    let email = null, name = "";
-    snapshot.forEach(child => {
-      if (child.val().username === username) {
-        email = child.val().mail;
-        name = child.val().ad;
+    function register() {
+      const user = document.getElementById("regUsername").value;
+      const pass = document.getElementById("regPassword").value;
+      if (user && pass) {
+        localStorage.setItem("user", user);
+        localStorage.setItem("pass_" + user, pass);
+        alert("Kayıt başarılı!");
       }
-    });
-    if (!email) return alert("Kullanıcı bulunamadı");
-
-    try {
-      if (remember) {
-        localStorage.setItem("savedUsername", username);
-        localStorage.setItem("savedPassword", password);
-      }
-      const result = await auth.signInWithEmailAndPassword(email, password);
-      if (!result.user.emailVerified) return alert("Lütfen e-postanızı doğrulayın.");
-      document.getElementById("welcomeText").innerText = `Hoş geldin, ${name}!`;
-      showMain();
-    } catch (err) {
-      alert("Giriş başarısız: " + err.message);
     }
-  }
 
-  function logout() {
-  auth.signOut()
-    .then(() => {
-      localStorage.removeItem("savedUsername");
-      localStorage.removeItem("savedPassword");
-      showLogin();
-    })
-    .catch((error) => {
-      alert("Çıkış işlemi başarısız: " + error.message);
-    });
-}
-
-  function resetPassword() {
-    const email = document.getElementById("resetMail").value;
-    auth.sendPasswordResetEmail(email)
-      .then(() => alert("Şifre sıfırlama bağlantısı gönderildi!"))
-      .catch(err => alert(err.message));
-  }
-
-  async function loadGames() {
-    const selectedDevice = document.getElementById("deviceSelect").value;
-    const selectedModel = document.getElementById("modelSelect").value;
-    const container = document.getElementById("gameList");
-    container.innerHTML = "";
-
-    const snapshot = await db.ref("games").once("value");
-    snapshot.forEach(child => {
-      const game = child.val();
-      if (game.device === selectedDevice && game.model === selectedModel) {
-        const card = document.createElement("div");
-        card.className = "game-card";
-        card.innerHTML = `
-          <h4>${game.name}</h4>
-          <img src="${game.image}" alt="${game.name}">
-          <p>${game.description}</p>
-          <strong>${game.device} - ${game.model}</strong><br>
-          <strong>Fiyat: ${game.price} TL</strong>
-        `;
-        container.appendChild(card);
+    function login() {
+      const user = document.getElementById("username").value;
+      const pass = document.getElementById("password").value;
+      if (localStorage.getItem("pass_" + user) === pass) {
+        localStorage.setItem("user", user);
+        document.getElementById("authSection").style.display = "none";
+        document.getElementById("catalogSection").style.display = "block";
+        loadGames();
+        renderCart();
+      } else {
+        alert("Giriş bilgileri hatalı.");
       }
-    });
-  }
-
-  async function searchGames() {
-    const term = document.getElementById("searchInput").value.toLowerCase();
-    const container = document.getElementById("gameList");
-    container.innerHTML = "";
-
-    const snapshot = await db.ref("games").once("value");
-    snapshot.forEach(child => {
-      const game = child.val();
-      if (game.name && game.name.toLowerCase().includes(term)) {
-        const card = document.createElement("div");
-        card.className = "game-card";
-        card.innerHTML = `
-          <h4>${game.name}</h4>
-          <img src="${game.image}" alt="${game.name}">
-          <p>${game.description}</p>
-          <strong>${game.device} - ${game.model}</strong><br>
-          <strong>Fiyat: ${game.price} TL</strong>
-        `;
-        container.appendChild(card);
-      }
-    });
-  }
-
-  window.onload = () => {
-    const savedUsername = localStorage.getItem("savedUsername");
-    const savedPassword = localStorage.getItem("savedPassword");
-    if (savedUsername && savedPassword) {
-      document.getElementById("loginUsername").value = savedUsername;
-      document.getElementById("loginPassword").value = savedPassword;
-      document.getElementById("rememberMe").checked = true;
     }
-  };
-</script>
+
+    function getCart() {
+      return JSON.parse(localStorage.getItem("cart") || "[]");
+    }
+
+    function getFavorites() {
+      return JSON.parse(localStorage.getItem("favorites") || "[]");
+    }
+
+    function addToCart(code) {
+      let cart = getCart();
+      if (!cart.includes(code)) {
+        cart.push(code);
+        localStorage.setItem("cart", JSON.stringify(cart));
+        renderCart();
+        alert("Sepete eklendi!");
+      }
+    }
+
+    function removeFromCart(code) {
+      let cart = getCart().filter(c => c !== code);
+      localStorage.setItem("cart", JSON.stringify(cart));
+      renderCart();
+      alert("Sepetten çıkarıldı!");
+    }
+
+    function toggleFavorite(code) {
+      let favs = getFavorites();
+      if (favs.includes(code)) {
+        favs = favs.filter(f => f !== code);
+      } else {
+        favs.push(code);
+      }
+      localStorage.setItem("favorites", JSON.stringify(favs));
+      loadGames();
+    }
+
+    function toggleVideo(code) {
+      const el = document.getElementById("video-" + code);
+      if (el) {
+        el.style.display = el.style.display === "none" ? "block" : "none";
+      }
+    }
+
+    function loadGames() {
+      firebase.database().ref("games").once("value").then(snapshot => {
+        const container = document.getElementById("gameCatalog");
+        const favContainer = document.getElementById("favCatalog");
+        container.innerHTML = '';
+        favContainer.innerHTML = '';
+        snapshot.forEach(child => {
+          const g = child.val();
+          const embedLink = toEmbedURL(g.video);
+          const div = document.createElement("div");
+          div.className = "game-card";
+          div.innerHTML = `
+            <img src="${g.image}" style="width:50%;height:200px;object-fit:contain">
+            <h3>${g.name}</h3>
+            <p>${g.device} / ${g.model}</p>
+            <p>${g.price} TL</p>
+            <button onclick="addToCart('${g.code}')">Sepete Ekle</button>
+            <button onclick="removeFromCart('${g.code}')">Sepetten Çıkar</button>
+            <button onclick="toggleFavorite('${g.code}')">Favori</button>
+            ${embedLink ? `
+              <button onclick="toggleVideo('${g.code}')">Videoyu Oynat / Kapat</button>
+              <div id="video-${g.code}" style="display:none; margin-top:10px;">
+                <iframe width="50%" height="200px" src="${embedLink}" frameborder="0" allowfullscreen></iframe>
+              </div>
+            ` : ''}
+          `;
+          const isFav = getFavorites().includes(g.code);
+          (isFav ? favContainer : container).appendChild(div);
+        });
+      });
+    }
+
+    function renderCart() {
+      const cart = getCart();
+      if (cart.length === 0) {
+        document.getElementById("cartList").innerHTML = "Sepet boş.";
+        document.getElementById("totalPrice").textContent = "Toplam: 0 TL";
+        return;
+      }
+
+      let total = 0;
+      let html = "<ul>";
+      const promises = cart.map(code => 
+        firebase.database().ref('games/' + code).once('value').then(snap => {
+          const game = snap.val();
+          if (game) {
+            total += parseFloat(game.price);
+            html += `<li>${game.name} - ${game.price} TL</li>`;
+          }
+        })
+      );
+
+      Promise.all(promises).then(() => {
+        html += "</ul>";
+        document.getElementById("cartList").innerHTML = html;
+        document.getElementById("totalPrice").textContent = `Toplam: ${total.toFixed(2)} TL`;
+      });
+    }
+
+    function sendCartViaWhatsApp() {
+      const cart = getCart();
+      if (cart.length === 0) return alert("Sepet boş!");
+
+      let message = "Siparişim:\n";
+      let total = 0;
+      const promises = cart.map(code =>
+        firebase.database().ref('games/' + code).once('value').then(snap => {
+          const game = snap.val();
+          if (game) {
+            message += `- ${game.name} (${game.price} TL)\n`;
+            total += parseFloat(game.price);
+          }
+        })
+      );
+
+      Promise.all(promises).then(() => {
+        const username = localStorage.getItem("user") || "Bilinmeyen Kullanıcı";
+        message += `\nToplam: ${total.toFixed(2)} TL\nKullanıcı: ${username}`;
+        const url = "https://wa.me/905548801010?text=" + encodeURIComponent(message);
+        window.open(url, "_blank");
+      });
+    }
+
+    function filterGames() {
+      const term = document.getElementById("searchBox").value.toLowerCase();
+      const cards = document.querySelectorAll("#gameCatalog .game-card");
+      cards.forEach(card => {
+        const name = card.querySelector("h3").textContent.toLowerCase();
+        card.style.display = name.includes(term) ? "block" : "none";
+      });
+    }
+  </script>
 </body>
 </html>
