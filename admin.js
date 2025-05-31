@@ -4,6 +4,26 @@ import { database } from './firebase.js';
 const deviceSelect = document.getElementById('deviceSelect');
 const status = document.getElementById('status');
 
+function saveAnnouncement() {
+  const announcement = document.getElementById("announcementText").value.trim();
+  firebase.database().ref("homepage/announcement").set(announcement).then(() => {
+    alert("Duyuru kaydedildi!");
+    document.getElementById("announcementText").value = '';
+  });
+}
+
+function saveMediaUrl() {
+  const url = document.getElementById("mediaUrl").value.trim();
+  if (!url.startsWith("http")) {
+    alert("Geçerli bir bağlantı girin!");
+    return;
+  }
+  firebase.database().ref("homepage/mediaUrl").set(url).then(() => {
+    alert("Çerçeve içeriği kaydedildi!");
+    document.getElementById("mediaUrl").value = '';
+  });
+}
+
 // Cihaz listesi güncelle
 function updateDeviceList() {
   const deviceRef = ref(database, 'devices');
