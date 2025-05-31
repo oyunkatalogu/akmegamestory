@@ -191,6 +191,18 @@
       }
     }
 
+    function updateAnnouncement() {
+  const text = document.getElementById("announcementInput").value.trim();
+  if (!text) {
+    alert("Duyuru metni boş olamaz!");
+    return;
+  }
+
+  firebase.database().ref("admin/announcementText").set(text)
+    .then(() => alert("Duyuru başarıyla kaydedildi!"))
+    .catch(err => alert("Hata: " + err.message));
+}
+
     window.addEventListener("load", () => {
       loadDevices();
       loadGameList();
