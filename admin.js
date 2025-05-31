@@ -4,11 +4,10 @@ import { database } from './firebase.js';
 const deviceSelect = document.getElementById('deviceSelect');
 const status = document.getElementById('status');
 
-function saveAnnouncement() {
-  const announcement = document.getElementById("announcementText").value.trim();
-  firebase.database().ref("homepage/announcement").set(announcement).then(() => {
+function updateAnnouncement() {
+  const text = document.getElementById("announcementInput").value;
+  firebase.database().ref("admin/announcementText").set(text).then(() => {
     alert("Duyuru kaydedildi!");
-    document.getElementById("announcementText").value = '';
   });
 }
 
