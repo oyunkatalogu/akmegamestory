@@ -4,12 +4,6 @@ import { database } from './firebase.js';
 const deviceSelect = document.getElementById('deviceSelect');
 const status = document.getElementById('status');
 
-function updateAnnouncement() {
-  const text = document.getElementById("announcementInput").value;
-  firebase.database().ref("admin/announcementText").set(text).then(() => {
-    alert("Duyuru kaydedildi!");
-  });
-}
 
 function saveMediaUrl() {
   const url = document.getElementById("mediaUrl").value.trim();
@@ -47,6 +41,19 @@ window.addDevice = () => {
     document.getElementById('deviceName').value = '';
   });
 };
+
+function updateAnnouncement() {
+  const text = document.getElementById("announcementInput").value.trim();
+  if (!text) {
+    alert("Duyuru metni boş olamaz!");
+    return;
+  }
+
+  firebase.database().ref("admin/announcementText").set(text)
+    .then(() => alert("Duyuru başarıyla kaydedildi!"))
+    .catch(err => alert("Hata: " + err.message));
+}
+
 
 // Oyun ekle
 window.addGame = () => {
