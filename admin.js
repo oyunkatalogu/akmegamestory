@@ -5,18 +5,6 @@ const deviceSelect = document.getElementById('deviceSelect');
 const status = document.getElementById('status');
 
 
-function saveMediaUrl() {
-  const url = document.getElementById("mediaUrl").value.trim();
-  if (!url.startsWith("http")) {
-    alert("Geçerli bir bağlantı girin!");
-    return;
-  }
-  firebase.database().ref("homepage/mediaUrl").set(url).then(() => {
-    alert("Çerçeve içeriği kaydedildi!");
-    document.getElementById("mediaUrl").value = '';
-  });
-}
-
 // Cihaz listesi güncelle
 function updateDeviceList() {
   const deviceRef = ref(database, 'devices');
@@ -41,18 +29,6 @@ window.addDevice = () => {
     document.getElementById('deviceName').value = '';
   });
 };
-
-function updateAnnouncement() {
-  const text = document.getElementById("announcementInput").value.trim();
-  if (!text) {
-    alert("Duyuru metni boş olamaz!");
-    return;
-  }
-
-  firebase.database().ref("admin/announcementText").set(text)
-    .then(() => alert("Duyuru başarıyla kaydedildi!"))
-    .catch(err => alert("Hata: " + err.message));
-}
 
 
 // Oyun ekle
