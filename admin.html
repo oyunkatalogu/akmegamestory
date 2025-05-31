@@ -20,8 +20,12 @@
 <button onclick="saveAnnouncement()">Kaydet</button>
 
 <h2>ANA SAYFA ÇERÇEVE İÇERİĞİ</h2>
-<input type="text" id="mediaUrl" placeholder="Video/Görsel bağlantısı (https://...)">
-<button onclick="saveMediaUrl()">Çerçeve İçeriğini Kaydet</button>
+<select id="mediaType">
+  <option value="image">Görsel</option>
+  <option value="video">Video</option>
+</select>
+<input type="text" id="mediaUrl" placeholder="İçerik bağlantısı (https://...)">
+<button onclick="uploadMedia()">Kaydet</button>
 
   <h2>Cihaz Ekle</h2>
   <input type="text" id="deviceName" placeholder="Yeni cihaz ismi">
@@ -204,6 +208,23 @@
     document.getElementById('announcementInput').value = "";
   }).catch((error) => {
     alert("Hata oluştu: " + error.message);
+  });
+}
+    function uploadMedia() {
+  const type = document.getElementById('mediaType').value;
+  const url = document.getElementById('mediaUrl').value.trim();
+
+  if (!url.startsWith("http")) {
+    alert("Geçerli bir bağlantı girin!");
+    return;
+  }
+
+  firebase.database().ref('admin/media').set({
+    type: type,
+    url: url
+  }).then(() => {
+    alert("Medya içeriği başarıyla kaydedildi!");
+    document.getElementById('mediaUrl').value = '';
   });
 }
   </script>
