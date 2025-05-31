@@ -15,9 +15,9 @@
 <body>
   <h1>Admin Panel</h1>
 
-  <h2>DUYURU İÇERİĞİ</h2>
-<textarea id="announcementInput" placeholder="Duyuruyu buraya yaz..." rows="4" cols="50"></textarea>
-<button onclick="updateAnnouncement()">Kaydet</button>
+  <h2>Duyuru İçeriği</h2>
+<input type="text" id="announcementInput" placeholder="Duyuru metni">
+<button onclick="saveAnnouncement()">Kaydet</button>
 
 <h2>ANA SAYFA ÇERÇEVE İÇERİĞİ</h2>
 <input type="text" id="mediaUrl" placeholder="Video/Görsel bağlantısı (https://...)">
@@ -191,22 +191,21 @@
       }
     }
 
-    function updateAnnouncement() {
-  const text = document.getElementById("announcementInput").value.trim();
-  if (!text) {
-    alert("Duyuru metni boş olamaz!");
-    return;
-  }
-
-  firebase.database().ref("admin/announcementText").set(text)
-    .then(() => alert("Duyuru başarıyla kaydedildi!"))
-    .catch(err => alert("Hata: " + err.message));
-}
-
     window.addEventListener("load", () => {
       loadDevices();
       loadGameList();
     });
+    function saveAnnouncement() {
+  const text = document.getElementById('announcementInput').value.trim();
+  if (!text) return alert("Lütfen bir duyuru metni girin.");
+
+  firebase.database().ref("admin/announcementText").set(text).then(() => {
+    alert("Duyuru başarıyla güncellendi!");
+    document.getElementById('announcementInput').value = "";
+  }).catch((error) => {
+    alert("Hata oluştu: " + error.message);
+  });
+}
   </script>
 </body>
 </html>
